@@ -23,12 +23,20 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             Padding(
               padding:  EdgeInsets.all(screenSize.height * 0.05),
-              child: Text(
-                '  Let’s fulfil your \ndaily needs with \n\t\t\t           us',
-                style: GoogleFonts.dmSans(
-                    fontSize: 40, fontWeight: FontWeight.bold),
+              child: Container(
+                alignment: Alignment.center,
+                width: screenSize.width ,
+                height: screenSize.height * 0.2,
+                child: Text(
+                  'Let’s fulfil your\ndaily needs with\nus',
+                  style: GoogleFonts.dmSans(
+                    fontSize: screenSize.height * 0.05,
+                       fontWeight: FontWeight.bold,
+                       ),
+                       textAlign: TextAlign.center,
+                       ),
+                ),
               ),
-            ),
             Padding(
               padding:  EdgeInsets.only(top: screenSize.height * 0.05),
               child: ElevatedButton(
@@ -41,9 +49,13 @@ class _SplashScreenState extends State<SplashScreen> {
                     elevation: 10.0,
                     fixedSize: const Size(201, 50)
                   ),
-                  child: const Text('Get Started')),
+                  child:  Text('Get Started',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  )),
             )
-          ],
+        )],
         ),
       ),
     );
