@@ -30,4 +30,26 @@ class AuthService{
     return null; // Atau tangani error dengan cara lain
   }
 }
+Future<UserCredential?> signInWithEmailAndPassword(String email, String password) async {
+  try {
+    UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    return userCredential;
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:2670102031.
+  }on FirebaseAuthException catch (e){
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:3219128634.
+    if (e.code == 'user-not-found') {
+      _logger.w('No user found for that email.');
+    } else if (e.code == 'wrong-password') {
+      _logger.w('Wrong password provided for that user.');
+    }
+    return null;
+  } 
+  catch (e) {
+    _logger.e('Error during sign in: $e');
+    return null ;
+  }
+}
 }
