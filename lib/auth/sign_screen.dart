@@ -110,7 +110,7 @@ class _SignScreenState extends State<SignScreen> {
           - A minimum length of 8 characters
            ''',
                 passwordDecoration: PasswordDecoration(
-                  inputPadding: EdgeInsets.all(screenSize.height * 0.01),
+                  inputPadding: const EdgeInsets.only(left: 25),
                   hintStyle:
                       GoogleFonts.dmSans(fontSize: 20, color: Colors.black38),
                 ),
@@ -151,12 +151,29 @@ class _SignScreenState extends State<SignScreen> {
                               fontSize: 25,
                               fontWeight: FontWeight.bold),
                         )),
+                        
             ),
             if (_errorMessage != null)
               Text(
                 _errorMessage!,
                 style: GoogleFonts.dmSans(color: Colors.red),
               ),
+              const SizedBox(height: 16.0),
+            ElevatedButton( // Tombol untuk sign in anonim
+              onPressed: _isLoading ? null : () async {
+                setState(() => _isLoading = true);
+                UserCredential? userCredential = await _authService.signInAnonymously();
+                setState(() => _isLoading = false);
+                if (userCredential != null) {
+                  // ignore: use_build_context_synchronously
+                  Navigator.pushReplacementNamed(context, '/home');
+                } else {
+                  _errorMessage = 'Anonymous sign in failed.'; // Tambahkan pesan error jika diperlukan
+                }
+              },
+              child: const Text('Masuk sebagai Tamu'),
+            ),
+            if (_errorMessage != null) Text(_errorMessage!),
             Padding(
               padding: const EdgeInsets.only(top: 40),
               child: Row(

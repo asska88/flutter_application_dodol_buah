@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:logger/logger.dart';
 
 class AuthService{
+  final user = FirebaseAuth.instance.currentUser;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final Logger _logger  = Logger();
   Future<UserCredential?> registerWithEmailAndPassword(String email, String password) async {
@@ -20,14 +22,14 @@ class AuthService{
       _logger.w('Kata sandi yang diberikan terlalu lemah.');
     } else if (e.code == 'email-already-in-use') {
       // Email sudah digunakan
-      _logger.w('Akun sudah ada dengan email tersebut.');
+      throw Exception('Akun sudah ada dengan email tersebut.');
     }
-    return null; // Atau tangani error dengan cara lain
+    return null; 
   } catch (e) {
     // Error lain
     _logger.e('Other exception: $e');
     _logger.w(e);
-    return null; // Atau tangani error dengan cara lain
+    return null; 
   }
 }
 Future<UserCredential?> signInWithEmailAndPassword(String email, String password) async {
@@ -37,9 +39,7 @@ Future<UserCredential?> signInWithEmailAndPassword(String email, String password
       password: password,
     );
     return userCredential;
-// Suggested code may be subject to a license. Learn more: ~LicenseLog:2670102031.
   }on FirebaseAuthException catch (e){
-// Suggested code may be subject to a license. Learn more: ~LicenseLog:3219128634.
     if (e.code == 'user-not-found') {
       _logger.w('No user found for that email.');
     } else if (e.code == 'wrong-password') {
@@ -52,4 +52,30 @@ Future<UserCredential?> signInWithEmailAndPassword(String email, String password
     return null ;
   }
 }
-}
+Future<UserCredential?> signInAnonymously() async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.signInAnonymously();
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      // Tangani error jika ada
+      _logger.e('Error during sign in anonymously: $e');
+      return null;
+    }
+  }
+User? _user;
+Map<String, dynamic>? _userData;
+
+Future<void> fetchUserData() async {
+  _user = FirebaseAuth.instance.currentUser;
+    if (_user != null) {
+      final userDoc = await FirebaseFirestore.instance.collection('user').doc(_user!.uid).get();
+      if (userDoc.exists) {
+          // ignore: unnecessary_cast
+          _userData = userDoc.data() as Map<String, dynamic>?;
+        }
+      }      
+    }
+    Map<String, dynamic>? getUserData() { // Method untuk mendapatkan userData
+    return _userData;
+  }
+  }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,6 +14,7 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final AuthService _authService = AuthService();
+  final TextEditingController nameControler = TextEditingController();
   final TextEditingController emailControler = TextEditingController();
   final TextEditingController passwordControler = TextEditingController();
   bool _isLoading = false;
@@ -22,25 +24,43 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
-      if (_isLoading == true) {
-        CircularProgressIndicator;
-      }
-      _errorMessage = null;
     });
-    UserCredential? userCredential =
-        await _authService.registerWithEmailAndPassword(
-            emailControler.text, passwordControler.text);
-
+try {
+      UserCredential? userCredential =
+          await _authService.registerWithEmailAndPassword(
+              emailControler.text, passwordControler.text);
+      if (userCredential != null) {
+        try {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .set({
+            'displayName': nameControler.text,
+            'email': emailControler.text,
+          });
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, '/home');
+          }
+        }on FirebaseException catch (e) {
+        setState(() {
+          _errorMessage = 'Gagal menyimpan data pengguna: ${e.message}';
+          _isLoading = false;
+        });
+      }}else {
+      setState(() {
+        _errorMessage = 'Registrasi gagal (auth). Silakan coba lagi.';
+        _isLoading = false;
+      });
+    
+  }}catch (e) {
     setState(() {
+        _errorMessage = 'Terjadi kesalahan: $e';
       _isLoading = false;
-      if (userCredential == null) {
-        _errorMessage = 'Registrasi gagal. Silahkan coba lagi.';
-      } else {
-        Navigator.pushReplacementNamed(context, '/home');
-      }
-    });
+      });
   }
 
+      
+  }
   @override
   void dispose() {
     super.dispose();
@@ -71,8 +91,33 @@ class _SignupScreenState extends State<SignupScreen> {
             Padding(
               padding: const EdgeInsets.only(left: 37, right: 42),
               child: TextFormField(
+                controller: nameControler,
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.only(left: 30),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  labelText: 'Nama',
+                  labelStyle:
+                      GoogleFonts.dmSans(fontSize: 20, color: Colors.black38),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Harap masukan Nama';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            SizedBox(
+              height: screenSize.height * 0.03,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 37, right: 42),
+              child: TextFormField(
                 controller: emailControler,
                 decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.only(left: 30),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -107,6 +152,7 @@ class _SignupScreenState extends State<SignupScreen> {
           - A minimum length of 8 characters
            ''',
                 passwordDecoration: PasswordDecoration(
+                  inputPadding: const EdgeInsets.only(left: 30),
                   hintStyle:
                       GoogleFonts.dmSans(fontSize: 20, color: Colors.black38),
                 ),
@@ -172,7 +218,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   Text(
                     'or continue with',
-                    style: GoogleFonts.dmSans(fontSize: 20, letterSpacing: -0.4),
+                    style:
+                        GoogleFonts.dmSans(fontSize: 20, letterSpacing: -0.4),
                   ),
                   const Expanded(
                     child: Padding(
