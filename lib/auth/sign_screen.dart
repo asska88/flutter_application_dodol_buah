@@ -52,7 +52,7 @@ class _SignScreenState extends State<SignScreen> {
         child: SafeArea(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Image.asset(
-              'assets/images/logo_dengan_simbol_chameleon_dan_nama_logo_chameleon_png-fotor-bg-remover-2024052682742.png',
+              'assets/images/logo.png',
               width: 271,
               height: screenSize.height * 0.3,
             ),
@@ -61,8 +61,8 @@ class _SignScreenState extends State<SignScreen> {
               style:
                   GoogleFonts.dmSans(fontSize: 30, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(
-              height: 40,
+             SizedBox(
+              height: screenSize.height * 0.02,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 37, right: 42),
@@ -175,7 +175,7 @@ class _SignScreenState extends State<SignScreen> {
             ),
             if (_errorMessage != null) Text(_errorMessage!),
             Padding(
-              padding: const EdgeInsets.only(top: 40),
+              padding:  EdgeInsets.only (top: screenSize.height * 0.01 ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -205,8 +205,8 @@ class _SignScreenState extends State<SignScreen> {
                 ],
               ),
             ),
-            const SizedBox(
-              height: 34,
+             SizedBox(
+              height: screenSize.height * 0.02,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -242,7 +242,9 @@ class _SignScreenState extends State<SignScreen> {
                   style: GoogleFonts.dmSans(fontSize: 20, color: Colors.black),
                 ),
                 TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/signup');
+                    },
                     style: TextButton.styleFrom(),
                     child: Text(
                       'Sign Up',

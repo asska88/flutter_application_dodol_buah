@@ -76,7 +76,7 @@ try {
         child: SafeArea(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Image.asset(
-              'assets/images/logo_dengan_simbol_chameleon_dan_nama_logo_chameleon_png-fotor-bg-remover-2024052682742.png',
+              'assets/images/logo.png',
               width: 271,
               height: screenSize.height * 0.3,
             ),
@@ -85,8 +85,8 @@ try {
               style:
                   GoogleFonts.dmSans(fontSize: 30, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(
-              height: 40,
+             SizedBox(
+              height: screenSize.height * 0.01,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 37, right: 42),
@@ -94,6 +94,8 @@ try {
                 controller: nameControler,
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.only(left: 30),
+                  prefixIcon: const Icon(Icons.person_outline),
+                    prefixIconColor: Colors.black38,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -110,7 +112,7 @@ try {
               ),
             ),
             SizedBox(
-              height: screenSize.height * 0.03,
+              height: screenSize.height * 0.02,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 37, right: 42),
@@ -138,7 +140,7 @@ try {
               ),
             ),
             SizedBox(
-              height: screenSize.height * 0.03,
+              height: screenSize.height * 0.02,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 37, right: 42),
@@ -203,7 +205,7 @@ try {
                 ),
               ),
             Padding(
-              padding: const EdgeInsets.only(top: 40),
+              padding:  EdgeInsets.only(top: screenSize.height * 0.03),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -233,8 +235,8 @@ try {
                 ],
               ),
             ),
-            const SizedBox(
-              height: 34,
+             SizedBox(
+              height: screenSize.height * 0.02,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -271,7 +273,7 @@ try {
                 ),
                 TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/home');
+                      Navigator.pushNamed(context, '/sign');
                     },
                     style: TextButton.styleFrom(),
                     child: Text(

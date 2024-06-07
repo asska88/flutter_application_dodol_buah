@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/auth/auth_service.dart';
+import 'package:myapp/module/products.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,40 +23,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  final List<Map<String, dynamic>> categories = [
-    {
-      'name': 'Armchair',
-      'imageAsset': 'assets/images/armchair.png',
-      'stok': '100+ Product'
-    },
-    {
-      'name': 'Sofa Red',
-      'imageAsset': 'assets/images/sofa_red.png',
-      'stok': '15+ Product'
-    },
-    {
-      'name': 'Sofa Grey',
-      'imageAsset': 'assets/images/sofa_green.png',
-      'stok': '10+ Product'
-    },
-  ];
-  final List<Map<String, dynamic>> products = [
-    {
-      'name': 'Wood Frame',
-      'imageAsset': 'assets/images/wood_frame.png',
-      'price': 'Rp. 2.600.000'
-    },
-    {
-      'name': 'Yellow Armchair',
-      'imageAsset': 'assets/images/yellow_armchair.png',
-      'price': 'Rp. 1.600.000'
-    },
-    {
-      'name': 'Sofa Grey',
-      'imageAsset': 'assets/images/sofa_green.png',
-      'price': 'Rp. 1.600.000'
-    },
-  ];
+  
+  
   List<Widget> _pages = [];
 
   @override
@@ -69,69 +38,14 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    'Browse by Categories',
-                    textAlign: TextAlign.start,
-                    style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 250,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return InkWell(
-                    onTap: () {
-                      // Tambahkan aksi yang diinginkan saat kategori di-tap
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 20),
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(32),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              categories[index]['imageAsset'],
-                              height: 150,
-                              width: 200,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              categories[index]['name'],
-                              style: GoogleFonts.dmSans(
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            Text(categories[index]['stok']),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Padding(
               padding: const EdgeInsets.only(left: 25),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(6.0),
                     child: Text(
-                      'Recommended for You',
+                      'Popular Products',
                       textAlign: TextAlign.start,
                       style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
                     ),
@@ -141,43 +55,59 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Padding(
               padding: const EdgeInsets.all(5.0),
-              child: SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      onTap: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                products[index]['imageAsset'],
-                                height: 120,
-                                width: 200,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(products[index]['name'],
-                                  style: GoogleFonts.dmSans(
-                                      fontWeight: FontWeight.bold)),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              Text(products[index]['price']),
-                            ],
-                          ),
-                        ),
+              child: Expanded(
+                child: Builder(builder: (context) {
+                  return 
+                  
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    child: GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, // Jumlah kolom
+                        crossAxisSpacing: 8, // Jarak horizontal antar card
+                        mainAxisSpacing: 8, // Jarak vertikal antar card
                       ),
-                    );
-                  },
-                ),
+                      itemCount: products.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/detail',
+                              arguments: products[index],
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 20),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(32),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    products[index].image,
+                                    height: 120,
+                                    width: 170,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(products[index].name,
+                                      style: GoogleFonts.dmSans(
+                                          fontWeight: FontWeight.bold)),
+                                  const SizedBox(
+                                    height: 8,
+                                  ),
+                                  Text('Rp. ${products[index].price.toStringAsFixed(3)} per kg'),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }),
               ),
             ),
           ],
@@ -196,42 +126,44 @@ class _HomeScreenState extends State<HomeScreen> {
               return const CircularProgressIndicator();
             } else if (snapshot.hasData) {
               final user = snapshot.data;
-              return user!= null ?
-              FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(user.uid)
-                    .get(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasData && snapshot.data!.exists) {
-                    final userData =
-                        snapshot.data!.data() as Map<String, dynamic>;
-                    return Center(
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                          CircleAvatar(
-                            backgroundImage:
-                                NetworkImage(_user?.photoURL ?? ''),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                              'Nama: ${userData['displayName'] ?? user.displayName ?? ''}'), 
-                          const SizedBox(height: 8),
-                          Text('Email: ${user.email}'),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: _signOut,
-                            child: const Text('Sign Out'),
-                          ),
-                        ]));
-                  } else {
-                    return const Center(child: Text('Anda belum login.'));
-                  }
-                },
-              ): const Center();
+              return user != null
+                  ? FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(user.uid)
+                          .get(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (snapshot.hasData && snapshot.data!.exists) {
+                          final userData =
+                              snapshot.data!.data() as Map<String, dynamic>;
+                          return Center(
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                CircleAvatar(
+                                  backgroundImage:
+                                      NetworkImage(_user?.photoURL ?? ''),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                    'Nama: ${userData['displayName'] ?? user.displayName ?? ''}'),
+                                const SizedBox(height: 8),
+                                Text('Email: ${user.email}'),
+                                const SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: _signOut,
+                                  child: const Text('Sign Out'),
+                                ),
+                              ]));
+                        } else {
+                          return const Center(child: Text('Anda belum login.'));
+                        }
+                      },
+                    )
+                  : const Center();
             } else {
               return const Text('Anda belum login.');
             }
@@ -257,8 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _user = null;
     });
     if (mounted) {
-      Navigator.pushReplacementNamed(
-          context, '/');
+      Navigator.pushReplacementNamed(context, '/');
     }
   }
 
@@ -267,11 +198,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          SizedBox(
-            width: 20,
-            child: IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.qr_code_scanner),
+          SingleChildScrollView(
+            child: SizedBox(
+              width: 20,
+              child: IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.qr_code_scanner),
+              ),
             ),
           ),
           SizedBox(
@@ -298,8 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
             for (int i = 0; i < _pages.length; i++)
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: const EdgeInsets.all(
-                      5),
+                  padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(

@@ -4,6 +4,7 @@ import 'package:myapp/auth/firebase_options.dart';
 import 'package:myapp/auth/login_screen.dart';
 import 'package:myapp/auth/sign_screen.dart';
 import 'package:myapp/auth/signup_screen.dart';
+import 'package:myapp/screen/detail_product_screen.dart';
 import 'package:myapp/screen/home_screen.dart';
 import 'package:myapp/screen/splash_screen.dart';
 
@@ -20,6 +21,7 @@ void main () async{
     '/signup' : (context)=>  const SignupScreen(),
     '/sign' : (context)=> const SignScreen(),
     '/home' : (context)=> const HomeScreen(),
+    '/detail' : (context)=>  const DetailProductScreen(),
     },
     
   ));

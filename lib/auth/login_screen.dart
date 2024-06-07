@@ -12,13 +12,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
-final AuthService _authService = AuthService();
+  final AuthService _authService = AuthService();
   final TextEditingController _emailControler = TextEditingController();
   final TextEditingController _passwordControler = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
-
 
   @override
   void dispose() {
@@ -35,19 +33,20 @@ final AuthService _authService = AuthService();
         child: SafeArea(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Image.asset(
-              'assets/images/logo_dengan_simbol_chameleon_dan_nama_logo_chameleon_png-fotor-bg-remover-2024052682742.png',
+              'assets/images/logo.png',
               width: screenSize.width * 0.8,
               height: screenSize.height * 0.3,
             ),
             Padding(
-              padding:  EdgeInsets.only(top: screenSize.height * 0.02),
+              padding: EdgeInsets.only(top: screenSize.height * 0.01),
               child: Text(
                 'Let’s You in',
-                style:
-                    GoogleFonts.dmSans(fontSize: screenSize.height * 0.055, fontWeight: FontWeight.bold),
+                style: GoogleFonts.dmSans(
+                    fontSize: screenSize.height * 0.055,
+                    fontWeight: FontWeight.bold),
               ),
             ),
-             SizedBox(
+            SizedBox(
               height: screenSize.height * 0.02,
             ),
             SignInButtonBuilder(
@@ -55,15 +54,15 @@ final AuthService _authService = AuthService();
                 onPressed: () {},
                 text: 'Continue With Facebook',
                 textColor: Colors.black,
-                fontSize: 20,
+                fontSize: screenSize.width * 0.05,
                 icon: Icons.facebook,
                 iconColor: Colors.blueAccent,
-                width: 296,
+                width: screenSize.width * 0.8,
                 height: screenSize.height * 0.07,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                     side: const BorderSide(width: 1.0))),
-             SizedBox(
+            SizedBox(
               height: screenSize.height * 0.02,
             ),
             SignInButtonBuilder(
@@ -73,18 +72,18 @@ final AuthService _authService = AuthService();
                 },
                 text: 'Continue With Google',
                 textColor: Colors.black,
-                fontSize: 20,
+                fontSize: screenSize.width * 0.05,
                 image: Image.asset(
                   'assets/images/logo_google.png',
                   width: 21,
                   height: 18,
                 ),
-                width: 296,
+                width: screenSize.width * 0.8,
                 height: screenSize.height * 0.07,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                     side: const BorderSide(width: 1.0))),
-             SizedBox(
+            SizedBox(
               height: screenSize.height * 0.02,
             ),
             SignInButtonBuilder(
@@ -92,16 +91,16 @@ final AuthService _authService = AuthService();
                 onPressed: () {},
                 text: 'Continue With Apple',
                 textColor: Colors.black,
-                fontSize: 20,
+                fontSize: screenSize.width * 0.05,
                 icon: Icons.apple,
                 iconColor: Colors.black,
-                width: 296,
+                width: screenSize.width * 0.8,
                 height: screenSize.height * 0.07,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                     side: const BorderSide(width: 1.0))),
             Padding(
-              padding:  EdgeInsets.only(top: screenSize.height * 0.02),
+              padding: EdgeInsets.only(top: screenSize.height * 0.01),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -116,7 +115,8 @@ final AuthService _authService = AuthService();
                   ),
                   Text(
                     'or',
-                    style: GoogleFonts.dmSans(fontSize: 30, letterSpacing: -0.4),
+                    style:
+                        GoogleFonts.dmSans(fontSize: 30, letterSpacing: -0.4),
                   ),
                   const Expanded(
                     child: Padding(
@@ -129,25 +129,29 @@ final AuthService _authService = AuthService();
                   )
                 ],
               ),
-            ),            
-            ElevatedButton( // Tombol untuk sign in anonim
-              onPressed: _isLoading ? null : () async {
-                setState(() => _isLoading = true);
-                UserCredential? userCredential = await _authService.signInAnonymously();
-                setState(() => _isLoading = false);
-                if (userCredential != null) {
-                  // ignore: use_build_context_synchronously
-                  Navigator.pushReplacementNamed(context, '/home');
-                } else {
-                  _errorMessage = 'Anonymous sign in failed.'; // Tambahkan pesan error jika diperlukan
-                }
-              },
+            ),
+            ElevatedButton(
+              // Tombol untuk sign in anonim
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      setState(() => _isLoading = true);
+                      UserCredential? userCredential =
+                          await _authService.signInAnonymously();
+                      setState(() => _isLoading = false);
+                      if (userCredential != null) {
+                        // ignore: use_build_context_synchronously
+                        Navigator.pushReplacementNamed(context, '/home');
+                      } else {
+                        _errorMessage =
+                            'Anonymous sign in failed.'; // Tambahkan pesan error jika diperlukan
+                      }
+                    },
               child: const Text('Masuk sebagai Tamu'),
             ),
             if (_errorMessage != null) Text(_errorMessage!),
             Padding(
-              padding:  EdgeInsets.only(top: screenSize.height * 0.02),
-              
+              padding: EdgeInsets.only(top: screenSize.height * 0.01),
               child: ElevatedButton(
                   onPressed: () {
                     Navigator.pushReplacementNamed(context, '/sign');
@@ -161,7 +165,7 @@ final AuthService _authService = AuthService();
                         borderRadius: BorderRadius.circular(25),
                       ),
                       side: const BorderSide(width: 2),
-                      fixedSize:  Size(339, screenSize.height * 0.07)),
+                      fixedSize: Size(screenSize.width * 0.9, screenSize.height * 0.07)),
                   child: Text(
                     'Sign with Password',
                     style: GoogleFonts.dmSans(
@@ -170,15 +174,12 @@ final AuthService _authService = AuthService();
                         fontWeight: FontWeight.bold),
                   )),
             ),
-             SizedBox(
-              height: screenSize.height * 0.01,
-            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Don’t have account',
-                  style: GoogleFonts.dmSans(fontSize: 20, color: Colors.black),
+                  style: GoogleFonts.dmSans(fontSize: screenSize.width * 0.05, color: Colors.black),
                 ),
                 TextButton(
                     onPressed: () {
@@ -188,7 +189,7 @@ final AuthService _authService = AuthService();
                     child: Text(
                       'Sign Up',
                       style: GoogleFonts.dmSans(
-                          fontSize: 20,
+                          fontSize: screenSize.width * 0.05,
                           fontWeight: FontWeight.bold,
                           color: Colors.black),
                     ))
