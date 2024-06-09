@@ -37,6 +37,7 @@ try {
               .set({
             'displayName': nameControler.text,
             'email': emailControler.text,
+            'role': 'user'
           });
           if (mounted) {
             Navigator.pushReplacementNamed(context, '/home');

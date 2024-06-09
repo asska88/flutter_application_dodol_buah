@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:myapp/module/cart_provider.dart';
 import 'package:myapp/module/products.dart';
+import 'package:myapp/screen/cart_screen.dart';
+import 'package:provider/provider.dart';
 
 class DetailProductScreen extends StatefulWidget {
   const DetailProductScreen({super.key});
@@ -11,13 +15,14 @@ class DetailProductScreen extends StatefulWidget {
 }
 
 class _DetailProductScreenState extends State<DetailProductScreen> {
-  late Products products;
+  late DocumentSnapshot productSnapshot;
   bool isFavorit = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    products = ModalRoute.of(context)!.settings.arguments as Products;
+    productSnapshot =
+        ModalRoute.of(context)!.settings.arguments as DocumentSnapshot;
   }
 
   @override
@@ -53,31 +58,31 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
               Row(
                 children: [
                   Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            products.name,
-                            style: GoogleFonts.inter(
-                                color: const Color(0xff3D5920),
-                                fontSize: screenSize.width * 0.07,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: -3 / 100),
-                          ),
-                        ),
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      productSnapshot['name'],
+                      style: GoogleFonts.inter(
+                          color: const Color(0xff3D5920),
+                          fontSize: screenSize.width * 0.07,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: -3 / 100),
+                    ),
+                  ),
                 ],
               ),
               SizedBox(
                   height: screenSize.height * 0.4,
                   width: screenSize.height * 0.4,
-                  child: Image.asset(
-                    products.image,
+                  child: Image.network(
+                    productSnapshot['image'],
                     fit: BoxFit.contain,
                   )),
               const SizedBox(
-                height: 20,
+                height: 5,
               ),
               Container(
-                width: screenSize.width ,
-                height: screenSize.height ,
+                width: screenSize.width,
+                height: screenSize.height,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(50),
@@ -87,32 +92,31 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Description', style: GoogleFonts.inter(
-                                  color: const Color(0xff0B3128),
-                                  fontSize: screenSize.width * 0.05,
-                                  fontWeight: FontWeight.w400,
-                                  letterSpacing: -3 / 100),)
-                                  ,
-                              Text(
-                                products.description,
-                                style: GoogleFonts.inter(
-                                    color:  Colors.black87,
-                                    fontSize: screenSize.width * 0.03,
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: -3 / 100),
-                              ),
-                            ],
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Description',
+                            style: GoogleFonts.inter(
+                                color: const Color(0xff0B3128),
+                                fontSize: screenSize.width * 0.05,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: -3 / 100),
                           ),
-                        ),
-                    SizedBox(
-                      width: screenSize.width * 0.1,
+                          Text(
+                            productSnapshot['description'],
+                            style: GoogleFonts.inter(
+                                color: Colors.black87,
+                                fontSize: screenSize.width * 0.03,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: -3 / 100),
+                          ),
+                        ],
+                      ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.only(left: 16.0, right: 16.0),
                       child: Row(
                         children: [
                           RichText(
@@ -120,23 +124,25 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                               TextSpan(
                                 text: 'Price ',
                                 style: GoogleFonts.josefinSans(
-                                    color:  Colors.black,
+                                    color: Colors.black,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w300,
                                     letterSpacing: -2 / 100),
                               ),
                               TextSpan(
-                                text: '\nRp. ${products.price.toStringAsFixed(3)}',
+                                text:
+                                    '\nRp. ${productSnapshot['price'].toStringAsFixed(2)}',
                                 style: GoogleFonts.josefinSans(
                                     color: const Color(0xff0B3128),
-                                    fontSize: 30,
+                                    fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: -2 / 100),
                               ),
                             ]),
                           ),
                           Padding(
-                            padding:  EdgeInsets.only(left: screenSize.width * 0.2),
+                            padding:
+                                EdgeInsets.only(left: screenSize.width * 0.3),
                             child: Row(
                               children: [
                                 Icon(Icons.star, color: Colors.yellow[800]),
@@ -147,6 +153,43 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                               ],
                             ),
                           )
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: Column(
+                        children: [
+                          ElevatedButton(
+                              onPressed: () {
+                                ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: Colors.black,
+                                    side: const BorderSide(
+                                        color: Colors.black, width: 1),
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.zero,
+                                    ),
+                                    padding: const EdgeInsets.all(8.0));
+                                Provider.of<CartProvider>(context,
+                                        listen: false)
+                                    .addToCart(Product.fromFirestore(productSnapshot));
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const CartScreen(), // Assuming your CartScreen widget is defined
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                'Add to cart',
+                                style: GoogleFonts.josefinSans(
+                                    color: Colors.black,
+                                    fontSize: screenSize.width * 0.04,
+                                    fontWeight: FontWeight.w400,
+                                    letterSpacing: -2 / 100),
+                              ))
                         ],
                       ),
                     )
