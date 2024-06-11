@@ -45,7 +45,7 @@ class _SignScreenState extends State<SignScreen> {
 
       if (userRole == 'admin') {
         Navigator.pushReplacementNamed(
-            context, '/admin'); // Ganti '/admin' dengan rute halaman admin Anda
+            context, '/admin');
       } else {
         Navigator.pushReplacementNamed(context, '/home');
       }
@@ -96,7 +96,7 @@ class _SignScreenState extends State<SignScreen> {
               child: _formPassword(),
             ),
             Padding(
-              padding: EdgeInsets.only(top: screenSize.height * 0.02),
+              padding: EdgeInsets.only(top: screenSize.height * 0.03),
               child: _signButton(),
             ),
             SizedBox(
@@ -109,7 +109,7 @@ class _SignScreenState extends State<SignScreen> {
               ),
             const SizedBox(height: 16.0),
             Padding(
-              padding: EdgeInsets.only(top: screenSize.height * 0.01),
+              padding: EdgeInsets.only(top: screenSize.height * 0.05),
               child: _continueWith(),
             ),
             SizedBox(
@@ -118,7 +118,6 @@ class _SignScreenState extends State<SignScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buttonLoginApple(context),
                 _buttonLoginGoogle(context),
                 _buttonLoginFB(context),
               ],
@@ -165,22 +164,12 @@ class _SignScreenState extends State<SignScreen> {
   SignInButton _buttonLoginGoogle(BuildContext context) {
     return SignInButton.mini(
       buttonType: ButtonType.google,
-      onPressed: () {
-        Navigator.pushNamed(context, '/login');
-      },
+      onPressed: () => _authService.signInwithGoogle(),
       elevation: 0,
     );
   }
 
-  SignInButton _buttonLoginApple(BuildContext context) {
-    return SignInButton.mini(
-      buttonType: ButtonType.apple,
-      onPressed: () {
-        Navigator.pushNamed(context, '/login');
-      },
-      elevation: 0,
-    );
-  }
+  
 
   Row _continueWith() {
     return Row(

@@ -6,6 +6,7 @@ import 'package:myapp/auth/sign_screen.dart';
 import 'package:myapp/auth/signup_screen.dart';
 import 'package:myapp/module/cart_provider.dart';
 import 'package:myapp/screen/admin_screen.dart';
+import 'package:myapp/screen/cart_screen.dart';
 import 'package:myapp/screen/detail_product_screen.dart';
 import 'package:myapp/screen/home_screen.dart';
 import 'package:myapp/screen/splash_screen.dart';
@@ -28,6 +29,7 @@ void main () async{
       '/sign' : (context)=> const SignScreen(),
       '/home' : (context)=> const HomeScreen(),
       '/detail' : (context)=>  const DetailProductScreen(),
+      '/cart' : (context)=>  const CartScreen(),
       '/profile' : (context)=>  const UserProfileWidget(),
       '/admin' : (context)=>  const AdminScreen(),
       },

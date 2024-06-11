@@ -1,30 +1,68 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:myapp/module/products.dart';
 
+class CartItem {
+  final Product product;
+  int quantity;
+
+  CartItem({required this.product, this.quantity = 1});
+}
+
 class CartProvider extends ChangeNotifier {
-  final List<Product> _cartItems = [];
+  final List<CartItem> _cartItems = [];
 
-  List<Product> get cartItems => _cartItems;
+  List<CartItem> get cartItems => _cartItems;
 
-  void addToCart(Product product) {
-    final existingProduct = _cartItems.firstWhere(
-      (item) => item.id == product.id,
-      orElse: () => Product (id: -1, name: '', price: 0, image: '', description: ''),
+  // Mengambil data produk dari Firestore berdasarkan ID
+  Future<Product?> getProductById(String productId) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productId)
+          .get();
+      if (doc.exists) {
+        return Product.fromFirestore(doc);
+      } else {
+        return null; 
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error fetching product: $e");
+      }
+      return null;
+    }
+  }
+
+  void addToCart(Product product, {required int quantity}) {
+    final existingCartItemIndex = _cartItems.indexWhere(
+      (item) => item.product.id == product.id,
     );
-    if (existingProduct.id != -1) {
-      existingProduct.quantity++;
+    if (existingCartItemIndex != -1) {
+      _cartItems[existingCartItemIndex].quantity++;
     } else {
-      _cartItems.add(product);
+      _cartItems.add(CartItem(product: product));
     }
     notifyListeners();
   }
 
-  void updateQuantity(Product product, int newQuantity) {
-    final existingProductIndex = _cartItems.indexWhere(
-      (item) => item.id == product.id,
+  void increaseQuantity(Product product) {
+    _updateQuantity(product, 1);
+  }
+
+  void decreaseQuantity(Product product) {
+    _updateQuantity(product, -1);
+  }
+
+  void _updateQuantity(Product product, int change) {
+    final existingCartItemIndex = _cartItems.indexWhere(
+      (item) => item.product.id == product.id,
     );
-    if (existingProductIndex != -1) {
-      _cartItems[existingProductIndex].quantity = newQuantity;
+    if (existingCartItemIndex != -1) {
+      _cartItems[existingCartItemIndex].quantity += change;
+      if (_cartItems[existingCartItemIndex].quantity <= 0) {
+        _cartItems.removeAt(existingCartItemIndex);
+      }
       notifyListeners();
     }
   }

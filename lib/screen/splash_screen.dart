@@ -46,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 padding: EdgeInsets.only(top: screenSize.height * 0.1),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/login');
+                    Navigator.pushReplacementNamed(context, '/login');
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xff9F57F9),

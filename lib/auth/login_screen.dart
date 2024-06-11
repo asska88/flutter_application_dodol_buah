@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SizedBox(
-              height: screenSize.height * 0.02,
+              height: screenSize.height * 0.04,
             ),
             SignInButtonBuilder(
                 backgroundColor: Colors.white,
@@ -83,24 +83,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                     side: const BorderSide(width: 1.0))),
-            SizedBox(
-              height: screenSize.height * 0.02,
-            ),
-            SignInButtonBuilder(
-                backgroundColor: Colors.white,
-                onPressed: () {},
-                text: 'Continue With Apple',
-                textColor: Colors.black,
-                fontSize: screenSize.width * 0.05,
-                icon: Icons.apple,
-                iconColor: Colors.black,
-                width: screenSize.width * 0.8,
-                height: screenSize.height * 0.07,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    side: const BorderSide(width: 1.0))),
+            
             Padding(
-              padding: EdgeInsets.only(top: screenSize.height * 0.01),
+              padding: EdgeInsets.only(top: screenSize.height * 0.03),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -151,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             if (_errorMessage != null) Text(_errorMessage!),
             Padding(
-              padding: EdgeInsets.only(top: screenSize.height * 0.01),
+              padding: EdgeInsets.only(top: screenSize.height * 0.03),
               child: ElevatedButton(
                   onPressed: () {
                     Navigator.pushReplacementNamed(context, '/sign');

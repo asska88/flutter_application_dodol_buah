@@ -89,6 +89,8 @@ class _AdminScreenState extends State<AdminScreen> {
                   ),
                 ),
                 TextField(
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
                   controller: _descriptionController,
                   decoration: const InputDecoration(labelText: 'Description'),
                 ),
@@ -142,12 +144,9 @@ class _AdminScreenState extends State<AdminScreen> {
                         "price": price,
                         "description": description,
                         "stock": stock,
-// Suggested code may be subject to a license. Learn more: ~LicenseLog:3973213750.
                         "image": imageUrl,
                       });
                     } else if (action == 'update') {
-                      // Update the product
-                      // await _uploadImageToFirebase(documentSnapshot!.id);
                       await _products.doc(documentSnapshot?.id).update({
                         "name": name,
                         "price": price,
@@ -191,6 +190,7 @@ class _AdminScreenState extends State<AdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('dasboard'),
         centerTitle: true,
       ),

@@ -80,7 +80,7 @@ class _ListProductState extends State<ListProduct> {
                                     Image.network(
                                       documentSnapshot['image'],
                                       height: 120,
-                                      width: 170,
+                                      width: 200,
                                     ),
                                     const SizedBox(height: 8),
                                     Text(documentSnapshot['name'],

@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/module/cart_provider.dart';
 import 'package:myapp/module/products.dart';
-import 'package:myapp/screen/cart_screen.dart';
 import 'package:provider/provider.dart';
 
 class DetailProductScreen extends StatefulWidget {
@@ -17,6 +16,7 @@ class DetailProductScreen extends StatefulWidget {
 class _DetailProductScreenState extends State<DetailProductScreen> {
   late DocumentSnapshot productSnapshot;
   bool isFavorit = false;
+  int _quantity = 1;
 
   @override
   void didChangeDependencies() {
@@ -142,7 +142,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                           ),
                           Padding(
                             padding:
-                                EdgeInsets.only(left: screenSize.width * 0.3),
+                                EdgeInsets.only(left: screenSize.width * 0.2),
                             child: Row(
                               children: [
                                 Icon(Icons.star, color: Colors.yellow[800]),
@@ -160,8 +160,30 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: Column(
                         children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    if (_quantity > 1) _quantity--;
+                                  });
+                                },
+                                icon: const Icon(Icons.remove),
+                              ),
+                              Text(_quantity.toString()),
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _quantity++;
+                                  });
+                                },
+                                icon: const Icon(Icons.add),
+                              ),
+                            ],
+                          ),
                           ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
                                     foregroundColor: Colors.black,
@@ -173,14 +195,34 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                                     padding: const EdgeInsets.all(8.0));
                                 Provider.of<CartProvider>(context,
                                         listen: false)
-                                    .addToCart(Product.fromFirestore(productSnapshot));
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const CartScreen(), // Assuming your CartScreen widget is defined
-                                  ),
+                                    .addToCart(
+                                  Product.fromFirestore(productSnapshot),
+                                  quantity: _quantity,
                                 );
+                                if (mounted) { 
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Berhasil'),
+            content: const Text('Produk berhasil ditambahkan ke keranjang.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Tutup dialog
+                },
+                child: const Text('OK'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Tutup dialog
+                  Navigator.pushNamed(context, '/cart'); // Navigasi ke CartScreen
+                },
+                child: const Text('Lihat Keranjang'),
+              ),
+            ],
+          ),
+        );
+      }
                               },
                               child: Text(
                                 'Add to cart',
