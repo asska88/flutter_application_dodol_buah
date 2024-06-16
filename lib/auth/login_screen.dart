@@ -36,6 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
               'assets/images/logo.png',
               width: screenSize.width * 0.8,
               height: screenSize.height * 0.3,
+              fit: BoxFit.cover,
             ),
             Padding(
               padding: EdgeInsets.only(top: screenSize.height * 0.01),
@@ -67,9 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SignInButtonBuilder(
                 backgroundColor: Colors.white,
-                onPressed: () {
-                  Navigator.pushNamed(context, '/google');
-                },
+                onPressed: () => _authService.signInwithGoogle(),
                 text: 'Continue With Google',
                 textColor: Colors.black,
                 fontSize: screenSize.width * 0.05,
@@ -139,14 +138,14 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: EdgeInsets.only(top: screenSize.height * 0.03),
               child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/sign');
+                    Navigator.pushNamed(context, '/sign');
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xff9F57F9),
                       foregroundColor: Colors.white,
                       elevation: 10.0,
                       shadowColor: Colors.black,
-                      shape: RoundedRectangleBorder(
+                      shape: RoundedRectangleBorder( 
                         borderRadius: BorderRadius.circular(25),
                       ),
                       side: const BorderSide(width: 2),

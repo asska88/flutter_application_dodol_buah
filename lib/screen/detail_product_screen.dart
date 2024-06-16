@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/module/cart_provider.dart';
+import 'package:myapp/module/favorite_service.dart';
 import 'package:myapp/module/products.dart';
 import 'package:provider/provider.dart';
 
@@ -15,7 +18,10 @@ class DetailProductScreen extends StatefulWidget {
 
 class _DetailProductScreenState extends State<DetailProductScreen> {
   late DocumentSnapshot productSnapshot;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   bool isFavorit = false;
+  final FavoriteService _favoriteService =
+      FavoriteService(); // Inisialisasi FavoriteService
   int _quantity = 1;
 
   @override
@@ -42,10 +48,27 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
               isFavorit ? Icons.favorite : Icons.favorite_border,
               color: isFavorit ? Colors.red : null,
             ),
-            onPressed: () {
-              setState(() {
-                isFavorit = !isFavorit;
-              });
+            onPressed: () async {
+              try {
+                final userId = _auth.currentUser!.uid;
+                final productId = productSnapshot.id;
+
+                if (isFavorit) {
+                  await _favoriteService.addFavorite(userId, productId,
+                      productSnapshot.data() as Map<String, dynamic>);
+                } else {
+                  await _favoriteService.removeFavorite(userId, productId);
+                }
+
+                setState(() {
+                  isFavorit = !isFavorit;
+                });
+              } catch (e) {
+                // Handle error if necessary
+                if (kDebugMode) {
+                  print('Error toggling favorite: $e');
+                }
+              }
             },
           )
         ],
@@ -199,30 +222,34 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                                   Product.fromFirestore(productSnapshot),
                                   quantity: _quantity,
                                 );
-                                if (mounted) { 
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Berhasil'),
-            content: const Text('Produk berhasil ditambahkan ke keranjang.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Tutup dialog
-                },
-                child: const Text('OK'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Tutup dialog
-                  Navigator.pushNamed(context, '/cart'); // Navigasi ke CartScreen
-                },
-                child: const Text('Lihat Keranjang'),
-              ),
-            ],
-          ),
-        );
-      }
+                                if (mounted) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Berhasil'),
+                                      content: const Text(
+                                          'Produk berhasil ditambahkan ke keranjang.'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(
+                                                context); // Tutup dialog
+                                          },
+                                          child: const Text('OK'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(
+                                                context); // Tutup dialog
+                                            Navigator.pushNamed(context,
+                                                '/cart'); // Navigasi ke CartScreen
+                                          },
+                                          child: const Text('Lihat Keranjang'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
                               },
                               child: Text(
                                 'Add to cart',

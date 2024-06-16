@@ -3,8 +3,12 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:intl/intl.dart';
+import 'package:readmore/readmore.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -29,7 +33,7 @@ class _AdminScreenState extends State<AdminScreen> {
         await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
-        _imageFile = pickedFile ;
+        _imageFile = pickedFile;
       });
     }
   }
@@ -122,8 +126,10 @@ class _AdminScreenState extends State<AdminScreen> {
                     if (name.isEmpty) {
                       return;
                     }
+                    final NumberFormat numberFormat = NumberFormat(
+                        '#,##0.00', 'id_ID'); // Format untuk Indonesia
                     final double? price =
-                        double.tryParse(_priceController.text);
+                        numberFormat.parse(_priceController.text) as double?;
                     if (price == null || price <= 0) {
                       // Tampilkan snackbar atau pesan error lainnya
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -153,7 +159,7 @@ class _AdminScreenState extends State<AdminScreen> {
                         "description": description,
                         "stock": stock,
                         "image": imageUrl,
-                    });
+                      });
                     }
 
                     // Clear the text fields
@@ -188,10 +194,16 @@ class _AdminScreenState extends State<AdminScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.sizeOf(context);
     return Scaffold(
+      backgroundColor: Colors.grey[300],
       appBar: AppBar(
+        leading: IconButton(onPressed: (){}, icon: const Icon(Icons.menu)),
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         automaticallyImplyLeading: false,
-        title: const Text('dasboard'),
+        title:  Text('DASHBOARD', style: GoogleFonts.openSans(fontWeight: FontWeight.bold, letterSpacing: 2),),
         centerTitle: true,
       ),
       // Using StreamBuilder to display all products from Firestore in real-time
@@ -208,44 +220,82 @@ class _AdminScreenState extends State<AdminScreen> {
                 final description = documentSnapshot.get('description');
                 final stock = documentSnapshot.get('stock');
                 return Card(
+                  surfaceTintColor: Colors.grey,
+                  shadowColor: Colors.purple,
+                  elevation: 3,
                   key: ValueKey(docID),
                   margin: const EdgeInsets.all(10),
-                  child: Column(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ListTile(
-                        title: Text(documentSnapshot['name']),
-                        subtitle: Padding(
+                      if (documentSnapshot['image'] != null)
+                        Image.network(
+                          documentSnapshot['image'],
+                          height: screenSize.height * 0.2,
+                          width: screenSize.width * 0.2,
+                          fit: BoxFit.contain,
+                        ),
+                      Expanded(
+                        // Expand to take available space
+                        child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  "Harga: Rp ${documentSnapshot['price'].toStringAsFixed(2)}"), // Format harga dalam Rupiah
-                              if (description !=
-                                  null) // Tampilkan deskripsi hanya jika ada
-                                Text("Deskripsi: $description"),
-                              if (stock !=
-                                  null) // Tampilkan stok hanya jika ada
-                                Text("Stok: $stock"),
+                                documentSnapshot['name'],
+                                style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              Text(
+                                "Harga: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(documentSnapshot['price'])}",
+                                style: GoogleFonts.jetBrainsMono(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              if (stock != null) Text("Stok: $stock"),
+                              // Description below the image and details
+                              if (description != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: ReadMoreText(
+                                    "Deskripsi: $description",
+                                    trimLines: 2,
+                                    colorClickableText: Colors.pink,
+                                    trimMode: TrimMode.Line,
+                                    trimCollapsedText: 'Show more',
+                                    trimExpandedText: 'Show less',
+                                    moreStyle: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
+                                    lessStyle: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
                             ],
                           ),
                         ),
-                        trailing: SizedBox(
-                          width: 100,
-                          child: Row(
-                            children: [
-                              // Press this button to edit a single product
-                              IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () =>
-                                      _createOrUpdate(documentSnapshot)),
-                              // This icon button is used to delete a single product
-                              IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () =>
-                                      _deleteProduct(documentSnapshot.id)),
-                            ],
-                          ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          // Wrap buttons in a Column for vertical alignment
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.edit,
+                                color: Colors.blueGrey,
+                              ),
+                              onPressed: () =>
+                                  _createOrUpdate(documentSnapshot),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete,
+                                  color: Colors.blueGrey),
+                              onPressed: () =>
+                                  _deleteProduct(documentSnapshot.id),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -261,9 +311,10 @@ class _AdminScreenState extends State<AdminScreen> {
         },
       ),
       // Add new product
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _createOrUpdate(),
-        child: const Icon(Icons.add),
+        label: const Text('Tambah Produk'),
+        icon: const Icon(Icons.add),
       ),
     );
   }

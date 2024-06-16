@@ -41,22 +41,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        actions: [
-          SingleChildScrollView(
-            child: SizedBox(
-              width: 20,
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pushNamed(
+        leading: IconButton(
+          onPressed: () {Navigator.pushNamed(
                     context,
                     '/profile',
-                  );
-                },
-                icon: const Icon(Icons.person),
-              ),
-            ),
-          ),
+                  );},
+          icon: const Icon(Icons.person_rounded),
+        ),
+        actions: [
           SizedBox(
             width: 80,
             child: IconButton(

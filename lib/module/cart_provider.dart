@@ -5,14 +5,25 @@ import 'package:myapp/module/products.dart';
 class CartItem {
   final Product product;
   int quantity;
+  bool isChecked;
 
-  CartItem({required this.product, this.quantity = 1});
+  CartItem({required this.product, this.quantity = 1, this.isChecked = false});
 }
 
 class CartProvider extends ChangeNotifier {
+  
   final List<CartItem> _cartItems = [];
 
   List<CartItem> get cartItems => _cartItems;
+
+  void toggleItemChecked(Product product) {
+    final item = cartItems.firstWhere((item) => item.product == product);
+    item.isChecked = !item.isChecked;
+    notifyListeners();
+  }
+
+  List<CartItem> get checkedItems => cartItems.where((item) => item.isChecked).toList(); // Daftar item yang dicentang
+
 
   // Mengambil data produk dari Firestore berdasarkan ID
   Future<Product?> getProductById(String productId) async {
@@ -53,6 +64,10 @@ class CartProvider extends ChangeNotifier {
   void decreaseQuantity(Product product) {
     _updateQuantity(product, -1);
   }
+  void removeFromCart(Product product) {
+    cartItems.removeWhere((item) => item.product == product);
+    notifyListeners();
+  }
 
   void _updateQuantity(Product product, int change) {
     final existingCartItemIndex = _cartItems.indexWhere(
@@ -66,4 +81,15 @@ class CartProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  double totalPrice(List<CartItem> cartItems) {
+    double total = 0;
+    for (var item in cartItems) {
+      if (item.isChecked) {
+  total += item.product.price * item.quantity;
+}
+    }
+    return total;
+  }
+
 }

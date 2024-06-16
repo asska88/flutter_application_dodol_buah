@@ -73,8 +73,9 @@ class _SignScreenState extends State<SignScreen> {
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Image.asset(
               'assets/images/logo.png',
-              width: 271,
+              width: screenSize.width * 0.8,
               height: screenSize.height * 0.3,
+              fit: BoxFit.cover,
             ),
             Text(
               'Sign In',
