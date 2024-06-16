@@ -1,39 +1,40 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ItemFavorit {
-  final String id; 
+  final String id;
   final String name;
-  final String image; 
+  final String image;
   final int price;
   final int stok;
 
-  ItemFavorit({
-    required this.id, 
-    required this.name, 
-    required this.image, 
-    required this.price, 
-    required this.stok
-  });
+  ItemFavorit(
+      {required this.id,
+      required this.name,
+      required this.image,
+      required this.price,
+      required this.stok});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'image': image,
+      'price': price,
+      'stock': stok, // Pastikan nama field di Firestore sama
+    };
+  }
 
   static Future<ItemFavorit> fromFirestore(
-      DocumentSnapshot<Map<String, dynamic>> snapshot,
-      SnapshotOptions? options,
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+    SnapshotOptions? options,
   ) async {
-    snapshot.data();
-    final productId = snapshot.id;
-    final productDoc = await FirebaseFirestore.instance
-        .collection('products')
-        .doc(productId)
-        .get();
-
-    final productData = productDoc.data()!; 
+    final data = snapshot.data()!;
 
     return ItemFavorit(
-      id: productId,
-      name: productData['name'] ?? '',
-      image: productData['image'] ?? '',  
-      price: (productData['price'] ?? 0).toInt(),
-      stok: (productData['stock'] ?? 0).toInt(),
+      id: snapshot.id,
+      name: data['name'] ?? '',
+      image: data['image'] ?? '',
+      price: (data['price'] ?? 0).toInt(),
+      stok: (data['stock'] ?? 0).toInt(),
     );
   }
 }

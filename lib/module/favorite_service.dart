@@ -10,7 +10,7 @@ class FavoriteService {
         .doc(userId)
         .collection('favorit')
         .doc(productId)
-        .set({}); 
+        .set(productData); 
   }
 
   Future<void> removeFavorite(String userId, String productId) async {

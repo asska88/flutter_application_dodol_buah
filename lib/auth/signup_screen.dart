@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/auth/auth_service.dart';
-import 'package:passwordfield/passwordfield.dart';
+import 'package:myapp/helper/keyboard.dart';
 import 'package:sign_button/sign_button.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -19,13 +19,15 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController passwordControler = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+  final FocusNode _passwordFocusNode = FocusNode();
+  bool _obscureText = true;
 
   void _registerUser() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
-try {
+    try {
       UserCredential? userCredential =
           await _authService.registerWithEmailAndPassword(
               emailControler.text, passwordControler.text);
@@ -42,26 +44,32 @@ try {
           if (mounted) {
             Navigator.pushReplacementNamed(context, '/home');
           }
-        }on FirebaseException catch (e) {
+        } on FirebaseException catch (e) {
+          setState(() {
+            _errorMessage = 'Gagal menyimpan data pengguna: ${e.message}';
+            _isLoading = false;
+          });
+        }
+      } else {
         setState(() {
-          _errorMessage = 'Gagal menyimpan data pengguna: ${e.message}';
+          _errorMessage = 'Registrasi gagal (auth). Silakan coba lagi.';
           _isLoading = false;
         });
-      }}else {
+      }
+    } catch (e) {
       setState(() {
-        _errorMessage = 'Registrasi gagal (auth). Silakan coba lagi.';
+        _errorMessage = 'Terjadi kesalahan: $e';
         _isLoading = false;
       });
-    
-  }}catch (e) {
-    setState(() {
-        _errorMessage = 'Terjadi kesalahan: $e';
-      _isLoading = false;
-      });
+    }
   }
 
-      
+  void _toggleObscureText() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -86,115 +94,29 @@ try {
               style:
                   GoogleFonts.dmSans(fontSize: 30, fontWeight: FontWeight.bold),
             ),
-             SizedBox(
+            SizedBox(
               height: screenSize.height * 0.01,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 37, right: 42),
-              child: TextFormField(
-                controller: nameControler,
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.only(left: 30),
-                  prefixIcon: const Icon(Icons.person_outline),
-                    prefixIconColor: Colors.black38,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  labelText: 'Nama',
-                  labelStyle:
-                      GoogleFonts.dmSans(fontSize: 20, color: Colors.black38),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Harap masukan Nama';
-                  }
-                  return null;
-                },
-              ),
+              child: _formNama(),
             ),
             SizedBox(
               height: screenSize.height * 0.02,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 37, right: 42),
-              child: TextFormField(
-                controller: emailControler,
-                decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(left: 30),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    labelText: 'Email',
-                    labelStyle:
-                        GoogleFonts.dmSans(fontSize: 20, color: Colors.black38),
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    prefixIconColor: Colors.black38),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Harap masukan email';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Email harus menggunakan @';
-                  }
-                  return null;
-                },
-              ),
+              child: _formEmail(),
             ),
             SizedBox(
               height: screenSize.height * 0.02,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 37, right: 42),
-              child: PasswordField(
-                controller: passwordControler,
-                errorMessage: '''
-          - A uppercase letter
-          - A lowercase letter
-          - A digit
-          - A special character
-          - A minimum length of 8 characters
-           ''',
-                passwordDecoration: PasswordDecoration(
-                  inputPadding: const EdgeInsets.only(left: 30),
-                  hintStyle:
-                      GoogleFonts.dmSans(fontSize: 20, color: Colors.black38),
-                ),
-                border: PasswordBorder(
-                    border: OutlineInputBorder(
-                        borderSide: const BorderSide(),
-                        borderRadius: BorderRadius.circular(25)),
-                    focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide:
-                            const BorderSide(color: Colors.red, width: 2))),
-                hintText: 'Password',
-              ),
-            ),
+                padding: const EdgeInsets.only(left: 37, right: 42),
+                child: _formPassword(context, screenSize)),
             Padding(
               padding: EdgeInsets.only(top: screenSize.height * 0.02),
-              child: ElevatedButton(
-                  onPressed: _isLoading ? null : _registerUser,
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff9F57F9),
-                      foregroundColor: Colors.white,
-                      elevation: 10.0,
-                      shadowColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      side: const BorderSide(width: 2),
-                      fixedSize: const Size(339, 49)),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(
-                          color: Colors.white,
-                        )
-                      : Text(
-                          'Sign Up',
-                          style: GoogleFonts.dmSans(
-                              color: Colors.white,
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold),
-                        )),
+              child: _buttonSignUp(),
             ),
             if (_errorMessage != null)
               Padding(
@@ -206,7 +128,7 @@ try {
                 ),
               ),
             Padding(
-              padding:  EdgeInsets.only(top: screenSize.height * 0.03),
+              padding: EdgeInsets.only(top: screenSize.height * 0.03),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -236,7 +158,7 @@ try {
                 ],
               ),
             ),
-             SizedBox(
+            SizedBox(
               height: screenSize.height * 0.02,
             ),
             Row(
@@ -290,5 +212,141 @@ try {
         ),
       ),
     );
+  }
+
+  ElevatedButton _buttonSignUp() {
+    return ElevatedButton(
+                onPressed: _isLoading ? null : _registerUser,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff9F57F9),
+                    foregroundColor: Colors.white,
+                    elevation: 10.0,
+                    shadowColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    side: const BorderSide(width: 2),
+                    fixedSize: const Size(339, 49)),
+                child: _isLoading
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                    : Text(
+                        'Sign Up',
+                        style: GoogleFonts.dmSans(
+                            color: Colors.white,
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold),
+                      ));
+  }
+
+  TextFormField _formPassword(BuildContext context, Size screenSize) {
+    return TextFormField(
+                focusNode: _passwordFocusNode,
+                controller: passwordControler,
+                obscureText: _obscureText,
+                obscuringCharacter: '*',
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) {
+                  _passwordFocusNode.unfocus();
+                  KeyboardUtil.hideKeyboard(context);
+                  _registerUser();
+                },
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.all(screenSize.height * 0.01),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25),
+                    borderSide: const BorderSide(color: Colors.black38),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  labelText: 'Password',
+                  labelStyle:
+                      GoogleFonts.dmSans(fontSize: 20, color: Colors.black38),
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  prefixIconColor: Colors.black38,
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      _toggleObscureText();
+                    },
+                    icon: const Icon(Icons.remove_red_eye_outlined),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Harap masukkan password';
+                  }
+
+                  // Aturan validasi password
+                  RegExp regex = RegExp(
+                      r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+                  if (!regex.hasMatch(value)) {
+                    return '''
+Password harus mengandung:
+- Minimal 1 huruf besar
+- Minimal 1 huruf kecil
+- Minimal 1 angka
+- Minimal 1 karakter khusus (!@#\$&*~)
+- Minimal 8 karakter
+''';
+                  }
+                  return null;
+                },
+              );
+  }
+
+  TextFormField _formEmail() {
+    return TextFormField(
+              textInputAction: TextInputAction.next,
+              controller: emailControler,
+              decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.only(left: 30),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  labelText: 'Email',
+                  labelStyle:
+                      GoogleFonts.dmSans(fontSize: 20, color: Colors.black38),
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  prefixIconColor: Colors.black38),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Harap masukan email';
+                }
+                if (!value.contains('@')) {
+                  return 'Email harus menggunakan @';
+                }
+                return null;
+              },
+            );
+  }
+
+  TextFormField _formNama() {
+    return TextFormField(
+              textInputAction: TextInputAction.next,
+              controller: nameControler,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.only(left: 30),
+                prefixIcon: const Icon(Icons.person_outline),
+                prefixIconColor: Colors.black38,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                labelText: 'Nama',
+                labelStyle:
+                    GoogleFonts.dmSans(fontSize: 20, color: Colors.black38),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Harap masukan Nama';
+                }
+                return null;
+              },
+            );
   }
 }

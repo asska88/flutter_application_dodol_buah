@@ -5,6 +5,7 @@ import 'package:myapp/auth/login_screen.dart';
 import 'package:myapp/auth/sign_screen.dart';
 import 'package:myapp/auth/signup_screen.dart';
 import 'package:myapp/module/cart_provider.dart';
+import 'package:myapp/module/favorite_provider.dart';
 import 'package:myapp/screen/admin_screen.dart';
 import 'package:myapp/screen/cart_screen.dart';
 import 'package:myapp/screen/checkout_screen.dart';
@@ -19,23 +20,27 @@ void main () async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp( ChangeNotifierProvider(
-    create: (context) => CartProvider(),
-    child: MaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/',
-      routes: {'/' : (context)=> const SplashScreen(),
-      '/login' : (context)=> const LoginScreen(),
-      '/signup' : (context)=>  const SignupScreen(),
-      '/sign' : (context)=> const SignScreen(),
-      '/home' : (context)=> const HomeScreen(),
-      '/detail' : (context)=>  const DetailProductScreen(),
-      '/cart' : (context)=>  const CartScreen(),
-      '/profile' : (context)=>  const UserProfileWidget(),
-      '/admin' : (context)=>  const AdminScreen(),
-      '/checkout' : (context)=>  const CheckoutScreen(checkedItems: [],),
-      },
-      
+  runApp( MultiProvider(
+    providers: [ChangeNotifierProvider(
+      create: (context) => CartProvider()),
+      ChangeNotifierProvider(create: (context) => FavoriteProvider())
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        initialRoute: '/',
+        routes: {'/' : (context)=> const SplashScreen(),
+        '/login' : (context)=> const LoginScreen(),
+        '/signup' : (context)=>  const SignupScreen(),
+        '/sign' : (context)=> const SignScreen(),
+        '/home' : (context)=> const HomeScreen(),
+        '/detail' : (context)=>  const DetailProductScreen(),
+        '/cart' : (context)=>  const CartScreen(),
+        '/profile' : (context)=>  const UserProfileWidget(),
+        '/admin' : (context)=>  const AdminScreen(),
+        '/checkout' : (context)=>  const CheckoutScreen(checkedItems: [],),
+        },
+        
+      ),
     ),
-  ));
+  );
 }

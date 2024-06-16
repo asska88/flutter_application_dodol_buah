@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/auth/auth_service.dart';
@@ -15,7 +14,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final AuthService _authService = AuthService();
   final TextEditingController _emailControler = TextEditingController();
   final TextEditingController _passwordControler = TextEditingController();
-  bool _isLoading = false;
   String? _errorMessage;
 
   @override
@@ -114,25 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
             ),
-            ElevatedButton(
-              // Tombol untuk sign in anonim
-              onPressed: _isLoading
-                  ? null
-                  : () async {
-                      setState(() => _isLoading = true);
-                      UserCredential? userCredential =
-                          await _authService.signInAnonymously();
-                      setState(() => _isLoading = false);
-                      if (userCredential != null) {
-                        // ignore: use_build_context_synchronously
-                        Navigator.pushReplacementNamed(context, '/home');
-                      } else {
-                        _errorMessage =
-                            'Anonymous sign in failed.'; // Tambahkan pesan error jika diperlukan
-                      }
-                    },
-              child: const Text('Masuk sebagai Tamu'),
-            ),
+            
             if (_errorMessage != null) Text(_errorMessage!),
             Padding(
               padding: EdgeInsets.only(top: screenSize.height * 0.03),

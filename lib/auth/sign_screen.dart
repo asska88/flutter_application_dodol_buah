@@ -20,7 +20,7 @@ class _SignScreenState extends State<SignScreen> {
   final FocusNode _passwordFocusNode = FocusNode();
   final TextEditingController _emailControler = TextEditingController();
   final TextEditingController _passwordControler = TextEditingController();
-  bool _obscureText = true; // Tambahkan variabel untuk mengontrol obscureText
+  bool _obscureText = true; 
 
   void _toggleObscureText() {
     setState(() {
