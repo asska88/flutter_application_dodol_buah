@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/auth/auth_service.dart';
+import 'package:myapp/service/auth_service.dart';
 import 'package:myapp/screen/cart_screen.dart';
 import 'package:myapp/widget/favorite_screen.dart';
 import 'package:myapp/widget/list_product.dart';

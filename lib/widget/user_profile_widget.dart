@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/auth/auth_service.dart';
+import 'package:myapp/service/auth_service.dart';
 
 class UserProfileWidget extends StatefulWidget {
   const UserProfileWidget({super.key});

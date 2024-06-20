@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:myapp/module/favorite_service.dart';
+import 'package:myapp/service/favorite_service.dart';
 
 class FavoriteProvider extends ChangeNotifier {
   final FavoriteService _favoriteService = FavoriteService();

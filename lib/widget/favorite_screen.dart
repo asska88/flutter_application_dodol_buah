@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/module/favorite_provider.dart';
-import 'package:myapp/module/favorite_service.dart';
+import 'package:myapp/service/favorite_service.dart';
 import 'package:myapp/module/item_favorite.dart';
 import 'package:provider/provider.dart';
 

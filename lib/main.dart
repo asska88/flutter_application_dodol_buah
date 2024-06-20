@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/auth/firebase_options.dart';
-import 'package:myapp/auth/login_screen.dart';
-import 'package:myapp/auth/sign_screen.dart';
-import 'package:myapp/auth/signup_screen.dart';
+import 'package:myapp/service/firebase_options.dart';
+import 'package:myapp/screen/login_screen.dart';
+import 'package:myapp/screen/sign_screen.dart';
+import 'package:myapp/screen/signup_screen.dart';
 import 'package:myapp/module/cart_provider.dart';
 import 'package:myapp/module/favorite_provider.dart';
 import 'package:myapp/screen/admin_screen.dart';
@@ -26,6 +26,13 @@ void main () async{
       ChangeNotifierProvider(create: (context) => FavoriteProvider())
       ],
       child: MaterialApp(
+        theme: ThemeData(
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff9F57F9)
+            )
+          )
+        ),
         debugShowCheckedModeBanner: false,
         initialRoute: '/',
         routes: {'/' : (context)=> const SplashScreen(),

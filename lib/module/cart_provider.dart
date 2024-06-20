@@ -1,95 +1,145 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:myapp/module/products.dart';
-
-class CartItem {
-  final Product product;
-  int quantity;
-  bool isChecked;
-
-  CartItem({required this.product, this.quantity = 1, this.isChecked = false});
-}
+import 'package:myapp/service/cart_service.dart';
+import 'package:collection/collection.dart';
 
 class CartProvider extends ChangeNotifier {
-  
-  final List<CartItem> _cartItems = [];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  List<CartItem> get cartItems => _cartItems;
+  List<CartItem> _items = [];
+  List<CartItem> get items => _items;
+  List<CartItem> get checkedItems => items
+      .where((item) => item.isChecked)
+      .toList(); // Daftar item yang dicentang
 
-  void toggleItemChecked(Product product) {
-    final item = cartItems.firstWhere((item) => item.product == product);
-    item.isChecked = !item.isChecked;
-    notifyListeners();
+  Stream<List<CartItem>> get stream => _itemStreamController.stream;
+
+  final _itemStreamController = StreamController<List<CartItem>>.broadcast();
+
+  @override
+  void dispose() {
+    _itemStreamController.close();
+    super.dispose();
   }
 
-  List<CartItem> get checkedItems => cartItems.where((item) => item.isChecked).toList(); // Daftar item yang dicentang
-
+  @override
+  void notifyListeners() {
+    _itemStreamController
+        .add(_items); // Add the updated _items list to the stream
+    super.notifyListeners();
+  }
 
   // Mengambil data produk dari Firestore berdasarkan ID
-  Future<Product?> getProductById(String productId) async {
+  Future<void> fetchCartItems() async {
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('products')
-          .doc(productId)
-          .get();
-      if (doc.exists) {
-        return Product.fromFirestore(doc);
-      } else {
-        return null; 
+      final userId = FirebaseAuth.instance.currentUser?.uid; // Dapatkan user ID
+      if (userId != null) {
+        final snapshot = await FirebaseFirestore.instance
+            .collection('carts')
+            .doc(userId)
+            .get();
+        // ... (parsing data seperti sebelumnya)
+          if (snapshot.exists) {
+            final data = snapshot.data() as Map<String, dynamic>;
+            final itemsData = data['items'] as List<dynamic>;
+            _items = itemsData
+                .map((itemData) => CartItem.fromMap(itemData))
+                .toList();
+          } else {
+            _items = [];
+          }
+          notifyListeners();
+        } 
+        }catch (e) {
+          print('Error fetching cart items: $e');
+        _itemStreamController.add(_items);
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error fetching product: $e");
-      }
-      return null;
     }
-  }
+      // ... (penanganan error)
+    
+  
 
-  void addToCart(Product product, {required int quantity}) {
-    final existingCartItemIndex = _cartItems.indexWhere(
-      (item) => item.product.id == product.id,
-    );
-    if (existingCartItemIndex != -1) {
-      _cartItems[existingCartItemIndex].quantity++;
+  // Add a product to the cart
+  Future<void> addToCart(Product product, {int quantity = 1}) async {
+    final existingItem =
+        _items.firstWhereOrNull((item) => item.product.id == product.id);
+
+    if (existingItem != null) {
+      existingItem.quantity += quantity;
     } else {
-      _cartItems.add(CartItem(product: product));
+      _items.add(CartItem(
+          product: product,
+          quantity: quantity,
+          isChecked: false)); // Default unchecked
     }
+
+    await _updateCartInFirestore();
     notifyListeners();
   }
 
-  void increaseQuantity(Product product) {
-    _updateQuantity(product, 1);
-  }
-
-  void decreaseQuantity(Product product) {
-    _updateQuantity(product, -1);
-  }
-  void removeFromCart(Product product) {
-    cartItems.removeWhere((item) => item.product == product);
+  // Remove a product from the cart
+  Future<void> removeFromCart(Product product) async {
+    _items.removeWhere((item) => item.product.id == product.id);
+    await _updateCartInFirestore();
     notifyListeners();
   }
 
-  void _updateQuantity(Product product, int change) {
-    final existingCartItemIndex = _cartItems.indexWhere(
-      (item) => item.product.id == product.id,
-    );
-    if (existingCartItemIndex != -1) {
-      _cartItems[existingCartItemIndex].quantity += change;
-      if (_cartItems[existingCartItemIndex].quantity <= 0) {
-        _cartItems.removeAt(existingCartItemIndex);
-      }
+  // Increase the quantity of a product
+  Future<void> increaseQuantity(Product product) async {
+    final item = _items.firstWhere((item) => item.product.id == product.id);
+    item.quantity++;
+    await _updateCartInFirestore();
+    notifyListeners();
+  }
+
+  // Decrease the quantity of a product
+  Future<void> decreaseQuantity(Product product) async {
+    final item = _items.firstWhere((item) => item.product.id == product.id);
+    if (item.quantity > 1) {
+      item.quantity--;
+      await _updateCartInFirestore();
       notifyListeners();
     }
   }
 
-  double totalPrice(List<CartItem> cartItems) {
+  // Toggle the checked state of an item
+  void toggleItemChecked(Product product) {
+    final item = _items.firstWhere((item) => item.product.id == product.id);
+    item.isChecked = !item.isChecked;
+    _updateCartInFirestore();
+    notifyListeners();
+  }
+
+  // Update the cart in Firestore
+  Future<void> _updateCartInFirestore() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid; // Dapatkan user ID
+    if (userId != null) {
+      await _firestore
+          .collection('carts')
+          .doc(userId)
+          .set(Cart(userId: userId, items: _items).toMap());
+    }
+  }
+
+  // Calculate the total price of checked items
+  double get checkedTotal {
+    return _items.where((item) => item.isChecked).fold(
+        0.0,
+        (currentTotal, item) =>
+            currentTotal + item.product.price * item.quantity);
+  }
+
+  double totalPrice(List<CartItem> items) {
     double total = 0;
-    for (var item in cartItems) {
+    for (var item in items) {
       if (item.isChecked) {
-  total += item.product.price * item.quantity;
-}
+        total += item.product.price * item.quantity;
+      }
     }
     return total;
   }
-
 }
