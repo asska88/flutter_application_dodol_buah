@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:myapp/module/cart_provider.dart';
 import 'package:myapp/service/cart_service.dart';
 import 'package:provider/provider.dart';
@@ -23,12 +25,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   List<CartItem> checkedItems = [];
 
   @override
-  void initState() {
-    super.initState();
-    final cartProvider = Provider.of<CartProvider>(context);
-    setState(() {
-      checkedItems = cartProvider.items.where((item) => item.isChecked).toList();
-    });
+  void dispose() {
+    _namaController.dispose();
+    _alamatController.dispose();
+    _noHpController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final arguments = ModalRoute.of(context)?.settings.arguments;
+    if (arguments is List<CartItem>) {
+      setState(() {
+        checkedItems = arguments;
+      });
+    }
   }
 
   @override
@@ -64,11 +76,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              Text(
-                'Total: Rp. ${cartProvider.totalPrice(widget.checkedItems).toStringAsFixed(0)}',
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+              Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Total:',
+                  style: GoogleFonts.openSans(
+                    fontSize: 18, fontWeight: FontWeight.w500
+                  ),
+                ),
+                Text(
+                  NumberFormat.currency(
+                    locale: 'id_ID',
+                    symbol: 'Rp',
+                    decimalDigits: 0,
+                  ).format(cartProvider.checkedTotal),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.end,
+                ),
+              ],
+            ),
               const SizedBox(height: 32),
 
               // Form Alamat Pengiriman

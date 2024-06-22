@@ -42,7 +42,6 @@ class CartProvider extends ChangeNotifier {
             .collection('carts')
             .doc(userId)
             .get();
-        // ... (parsing data seperti sebelumnya)
           if (snapshot.exists) {
             final data = snapshot.data() as Map<String, dynamic>;
             final itemsData = data['items'] as List<dynamic>;
@@ -58,9 +57,7 @@ class CartProvider extends ChangeNotifier {
           print('Error fetching cart items: $e');
         _itemStreamController.add(_items);
       }
-    }
-      // ... (penanganan error)
-    
+    }    
   
 
   // Add a product to the cart

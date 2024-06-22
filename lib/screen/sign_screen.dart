@@ -3,8 +3,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:myapp/module/cart_provider.dart';
 import 'package:myapp/service/auth_service.dart';
 import 'package:myapp/helper/keyboard.dart';
+import 'package:provider/provider.dart';
 import 'package:sign_button/sign_button.dart';
 
 class SignScreen extends StatefulWidget {
@@ -20,13 +22,14 @@ class _SignScreenState extends State<SignScreen> {
   final FocusNode _passwordFocusNode = FocusNode();
   final TextEditingController _emailControler = TextEditingController();
   final TextEditingController _passwordControler = TextEditingController();
-  bool _obscureText = true; 
+  bool _obscureText = true;
 
   void _toggleObscureText() {
     setState(() {
       _obscureText = !_obscureText;
     });
   }
+
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -42,10 +45,9 @@ class _SignScreenState extends State<SignScreen> {
     if (userCredential != null) {
       String? userRole =
           await _authService.getUserRole(userCredential.user!.uid);
-
+      Provider.of<CartProvider>(context, listen: false).fetchCartItems();
       if (userRole == 'admin') {
-        Navigator.pushReplacementNamed(
-            context, '/admin');
+        Navigator.pushReplacementNamed(context, '/admin');
       } else {
         Navigator.pushReplacementNamed(context, '/home');
       }
@@ -170,8 +172,6 @@ class _SignScreenState extends State<SignScreen> {
     );
   }
 
-  
-
   Row _continueWith() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -201,7 +201,6 @@ class _SignScreenState extends State<SignScreen> {
       ],
     );
   }
-
 
   ElevatedButton _signButton() {
     return ElevatedButton(
@@ -241,7 +240,7 @@ class _SignScreenState extends State<SignScreen> {
         _signIn();
       },
       decoration: InputDecoration(
-        contentPadding:  EdgeInsets.all(screenSize.height * 0.01),
+        contentPadding: EdgeInsets.all(screenSize.height * 0.01),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25),
           borderSide: const BorderSide(color: Colors.black38),
