@@ -43,9 +43,7 @@ void main() async {
           '/cart': (context) => const CartScreen(),
           '/profile': (context) => const UserProfileWidget(),
           '/admin': (context) => const AdminScreen(),
-          '/checkout': (context) => const CheckoutScreen(
-                checkedItems: [],
-              ),
+          '/checkout': (context) => const CheckoutScreen(),
         },
       ),
     ),

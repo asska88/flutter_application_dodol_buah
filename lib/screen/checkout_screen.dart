@@ -7,9 +7,8 @@ import 'package:myapp/service/cart_service.dart';
 import 'package:provider/provider.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  final List<CartItem> checkedItems; // Corrected argument name
 
-  const CheckoutScreen({super.key, required this.checkedItems});
+  const CheckoutScreen({super.key});
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
@@ -45,7 +44,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    return Consumer<CartProvider>( // Use Consumer to listen to CartProvider changes
+      builder: (context, cartProvider, child) {
+        final checkedItems = cartProvider.checkedItems;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Checkout')),
@@ -65,9 +66,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: widget.checkedItems.length,
+                itemCount: checkedItems.length,
                 itemBuilder: (context, index) {
-                  final item = widget.checkedItems[index];
+                  final item = checkedItems[index];
                   return ListTile(
                     title: Text(item.product.name),
                     trailing: Text(
@@ -185,4 +186,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ),
     );
   }
-}
+  
+);
+  }}

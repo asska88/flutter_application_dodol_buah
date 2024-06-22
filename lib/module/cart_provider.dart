@@ -9,6 +9,8 @@ import 'package:collection/collection.dart';
 
 class CartProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:4018085526.
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   List<CartItem> _items = [];
   List<CartItem> get items => _items;
@@ -31,6 +33,22 @@ class CartProvider extends ChangeNotifier {
     _itemStreamController
         .add(_items); // Add the updated _items list to the stream
     super.notifyListeners();
+  }
+
+CartProvider() {
+    _auth.authStateChanges().listen((user) {
+      if (user != null) {
+        fetchCartItems(); // Ambil data keranjang saat login
+      } else {
+        clearCart(); // Kosongkan keranjang saat logout
+      }
+    });
+  }
+
+  void clearCart() {
+    _items.clear(); // Kosongkan list _items
+    _updateCartInFirestore(); // Update Firestore (opsional)
+    notifyListeners(); // Beritahu listeners bahwa data keranjang telah berubah
   }
 
   // Mengambil data produk dari Firestore berdasarkan ID
