@@ -14,27 +14,12 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  Stream<List<CartItem>>? _cartItemsStream;
-  bool _isLoading = true;
+  // bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CartProvider>(context, listen: false)
-          .fetchCartItems()
-          .then((_) {
-        setState(() {
-          _isLoading = false; // Selesai loading
-        });
-      });
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _cartItemsStream = Provider.of<CartProvider>(context).stream;
+    Provider.of<CartProvider>(context, listen: false).fetchCartItems();
   }
 
   @override
@@ -43,55 +28,47 @@ class _CartScreenState extends State<CartScreen> {
     final cartProvider = Provider.of<CartProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        elevation: 10,
-        title: const Text('Keranjang Belanja'),
-      ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator()) // Tampilkan loading indicator
-          : StreamBuilder<List<CartItem>>(
-              stream: _cartItemsStream,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return const Center(
-                    child: Text("Error"),
-                  );
-                } else if (snapshot.connectionState ==
-                    ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text("Keranjang Kosong"));
-                } else {
-                  final cartItems = snapshot.data!;
-                  return Stack(
-                    children: [
-                      ListView.builder(
-                        itemCount: cartItems.length,
-                        itemBuilder: (context, index) {
-                          final cartItem = cartItems[index];
-                          final product = cartItem.product;
-                          final quantity = cartItem.quantity;
-                          return _buildCartItem(context, screenSize, product,
-                              cartProvider, quantity, cartItem);
-                        },
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: _buildBottomBar(
-                            context, screenSize, cartProvider, cartItems),
-                      ),
-                    ],
-                  );
-                }
-              },
-            ),
-    );
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          elevation: 10,
+          title: const Text('Keranjang Belanja'),
+        ),
+        body: StreamBuilder<List<CartItem>>(
+            stream: cartProvider.stream,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator()); // Tampilkan loading saat menunggu data
+              } else if (snapshot.hasError) {
+                return Text(
+                    'Error: ${snapshot.error}'); // Tampilkan error jika terjadi
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Text(
+                    'Keranjang Kosong'); // Tampilkan pesan jika keranjang kosong
+              } else {
+                final cartItems = snapshot.data!;
+                return Stack(
+                  children: [
+                    ListView.builder(
+                      itemCount: cartItems.length,
+                      itemBuilder: (context, index) {
+                        final cartItem = cartItems[index];
+                        final product = cartItem.product;
+                        final quantity = cartItem.quantity;
+                        return _buildCartItem(context, screenSize, product,
+                            cartProvider, quantity, cartItem);
+                      },
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: _buildBottomBar(
+                          context, screenSize, cartProvider, cartItems),
+                    ),
+                  ],
+                );
+              }
+            }));
   }
 
   Widget _buildBottomBar(

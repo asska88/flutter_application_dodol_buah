@@ -30,53 +30,54 @@ class CartProvider extends ChangeNotifier {
 
   @override
   void notifyListeners() {
-    _itemStreamController
-        .add(_items); // Add the updated _items list to the stream
     super.notifyListeners();
   }
 
-CartProvider() {
+  CartProvider() {
     _auth.authStateChanges().listen((user) {
       if (user != null) {
         fetchCartItems(); // Ambil data keranjang saat login
-      } else {
-        clearCart(); // Kosongkan keranjang saat logout
       }
     });
-  }
-
-  void clearCart() {
-    _items.clear(); // Kosongkan list _items
-    _updateCartInFirestore(); // Update Firestore (opsional)
-    notifyListeners(); // Beritahu listeners bahwa data keranjang telah berubah
+    fetchCartItems();
   }
 
   // Mengambil data produk dari Firestore berdasarkan ID
   Future<void> fetchCartItems() async {
     try {
-      final userId = FirebaseAuth.instance.currentUser?.uid; // Dapatkan user ID
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+
       if (userId != null) {
         final snapshot = await FirebaseFirestore.instance
             .collection('carts')
             .doc(userId)
             .get();
-          if (snapshot.exists) {
-            final data = snapshot.data() as Map<String, dynamic>;
-            final itemsData = data['items'] as List<dynamic>;
-            _items = itemsData
-                .map((itemData) => CartItem.fromMap(itemData))
-                .toList();
-          } else {
-            _items = [];
-          }
-          notifyListeners();
-        } 
-        }catch (e) {
-          print('Error fetching cart items: $e');
-        _itemStreamController.add(_items);
+
+        if (snapshot.exists) {
+          final data = snapshot.data(); // Menggunakan ? untuk nullable
+
+          final itemsData =
+              data?['items'] as List<dynamic>?; // Menggunakan ? untuk nullable
+
+          // Menggunakan if untuk memastikan itemsData tidak null
+          _items = itemsData
+                  ?.map((itemData) => CartItem.fromMap(itemData))
+                  .toList() ??
+              [];
+        } else {
+          _items = [];
+        }
+      } else {
+        _items = [];
       }
-    }    
-  
+    } catch (e) {
+      print('Error fetching cart items: $e');
+      _itemStreamController.addError(e);
+    } finally {
+      // Selalu jalankan notifierListeners() dan _itemStreamController.add(_items); baik berhasil ataupun error
+      _itemStreamController.add(_items);
+    }
+  }
 
   // Add a product to the cart
   Future<void> addToCart(Product product, {int quantity = 1}) async {
@@ -131,12 +132,18 @@ CartProvider() {
 
   // Update the cart in Firestore
   Future<void> _updateCartInFirestore() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid; // Dapatkan user ID
+    final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
-      await _firestore
-          .collection('carts')
-          .doc(userId)
-          .set(Cart(userId: userId, items: _items).toMap());
+      try {
+        await _firestore.collection('carts').doc(userId).update({
+          'items': _items.map((item) => item.toMap()).toList(),
+        });
+        // notifyListeners(); // Tidak perlu dipanggil di sini, sudah dipanggil di fungsi yang memanggil _updateCartInFirestore
+      } catch (e) {
+        // Handle any errors that might occur during the update
+        print("Error updating cart: $e");
+        // Potentially show an error message to the user
+      }
     }
   }
 
