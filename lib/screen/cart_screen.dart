@@ -37,36 +37,40 @@ class _CartScreenState extends State<CartScreen> {
             stream: cartProvider.stream,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator()); // Tampilkan loading saat menunggu data
+                return const Center(
+                    child:
+                        CircularProgressIndicator()); // Tampilkan loading saat menunggu data
               } else if (snapshot.hasError) {
                 return Text(
                     'Error: ${snapshot.error}'); // Tampilkan error jika terjadi
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Text(
-                    'Keranjang Kosong'); // Tampilkan pesan jika keranjang kosong
               } else {
-                final cartItems = snapshot.data!;
-                return Stack(
-                  children: [
-                    ListView.builder(
-                      itemCount: cartItems.length,
-                      itemBuilder: (context, index) {
-                        final cartItem = cartItems[index];
-                        final product = cartItem.product;
-                        final quantity = cartItem.quantity;
-                        return _buildCartItem(context, screenSize, product,
-                            cartProvider, quantity, cartItem);
-                      },
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: _buildBottomBar(
-                          context, screenSize, cartProvider, cartItems),
-                    ),
-                  ],
-                );
+                final cartItems = snapshot.data ??
+                    []; // Handle kemungkinan snapshot.data null
+                if (cartItems.isEmpty) {
+                  return const Center(child: Text('Keranjang Kosong'));
+                } else {
+                  return Stack(
+                    children: [
+                      ListView.builder(
+                        itemCount: cartItems.length,
+                        itemBuilder: (context, index) {
+                          final cartItem = cartItems[index];
+                          final product = cartItem.product;
+                          final quantity = cartItem.quantity;
+                          return _buildCartItem(context, screenSize, product,
+                              cartProvider, quantity, cartItem);
+                        },
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: _buildBottomBar(
+                            context, screenSize, cartProvider, cartItems),
+                      ),
+                    ],
+                  );
+                }
               }
             }));
   }

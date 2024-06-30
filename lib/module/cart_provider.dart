@@ -135,16 +135,38 @@ class CartProvider extends ChangeNotifier {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
       try {
-        await _firestore.collection('carts').doc(userId).update({
+        final cartDocRef = _firestore.collection('carts').doc(userId);
+
+        // Check if the document exists
+        if (!(await cartDocRef.get()).exists) {
+          await cartDocRef
+              .set({'items': []}); // Create document if it doesn't exist
+        }
+
+        await cartDocRef.update({
           'items': _items.map((item) => item.toMap()).toList(),
         });
-        // notifyListeners(); // Tidak perlu dipanggil di sini, sudah dipanggil di fungsi yang memanggil _updateCartInFirestore
+
+        notifyListeners(); // Beri tahu widget lain tentang perubahan
+      } on FirebaseException catch (e) {
+        if (e.code == 'permission-denied') {
+          print('Error updating cart: Permission denied.');
+          // Tampilkan pesan error yang sesuai kepada pengguna.
+        } else {
+          print('Error updating cart: $e');
+          // Handle error lainnya jika diperlukan.
+        }
       } catch (e) {
-        // Handle any errors that might occur during the update
-        print("Error updating cart: $e");
-        // Potentially show an error message to the user
+        print(
+            'Error updating cart: $e'); // Tangani error lain yang tidak terduga.
       }
     }
+  }
+
+  Future<void> clearCheckedItems() async {
+    _items.removeWhere((item) => item.isChecked);
+    await _updateCartInFirestore();
+    notifyListeners();
   }
 
   // Calculate the total price of checked items
