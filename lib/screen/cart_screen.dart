@@ -36,16 +36,13 @@ class _CartScreenState extends State<CartScreen> {
         body: StreamBuilder<List<CartItem>>(
             stream: cartProvider.stream,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                    child:
-                        CircularProgressIndicator()); // Tampilkan loading saat menunggu data
+              if (snapshot.connectionState == ConnectionState.waiting ||
+                  !snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
-                return Text(
-                    'Error: ${snapshot.error}'); // Tampilkan error jika terjadi
+                return Text('Error: ${snapshot.error}');
               } else {
-                final cartItems = snapshot.data ??
-                    []; // Handle kemungkinan snapshot.data null
+                final cartItems = snapshot.data ?? [];
                 if (cartItems.isEmpty) {
                   return const Center(child: Text('Keranjang Kosong'));
                 } else {
@@ -168,8 +165,17 @@ class _CartScreenState extends State<CartScreen> {
           leading: Image.network(
             product.image,
             height: screenSize.height * 0.3,
-            width: screenSize.width * 0.2,
-            fit: BoxFit.fitHeight,
+            width: screenSize.width * 0.1,
+            fit: BoxFit.fill,
+            loadingBuilder: (context, child, progress) {
+              return progress == null
+                  ? child
+                  : const CircularProgressIndicator();
+            },
+            errorBuilder: (context, error, stackTrace) {
+              print('Error loading image: $error');
+              return const Icon(Icons.error);
+            },
           ),
           title: Text(
             product.name,
@@ -182,6 +188,7 @@ class _CartScreenState extends State<CartScreen> {
               decimalDigits: 0,
             ).format(product.price),
           ),
+          contentPadding: EdgeInsets.zero,
           trailing: Container(
             height: screenSize.height * 0.06,
             decoration: BoxDecoration(

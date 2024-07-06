@@ -104,7 +104,7 @@ Future<void> signInwithGoogle() async {
     _user = FirebaseAuth.instance.currentUser;
     if (_user != null) {
       final userDoc = await FirebaseFirestore.instance
-          .collection('user')
+          .collection('users')
           .doc(_user!.uid)
           .get();
       if (userDoc.exists) {
@@ -127,7 +127,7 @@ Future<void> signInwithGoogle() async {
           .get();
 
       if (userDoc.exists) {
-        return userDoc.get('role') as String?;
+        return userDoc.get('role');
       } else {
         return null; // User document doesn't exist
       }

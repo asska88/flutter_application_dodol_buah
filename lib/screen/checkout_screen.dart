@@ -1,11 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/module/cart_provider.dart';
 import 'package:myapp/module/shipping_address_form.dart';
 import 'package:myapp/service/cart_service.dart';
+import 'package:myapp/service/order_service.dart';
 import 'package:provider/provider.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -160,29 +159,32 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                 // Tombol Selesaikan Pembayaran
                 ElevatedButton(
-  onPressed: () async {
-    if (_formKey.currentState!.validate() &&
-        _selectedPaymentMethod != null &&
-        !_isAddingNewAddress &&
-        selectedAddress != null) {
-      await _completeOrder(selectedAddress!);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              'Harap lengkapi formulir dan pilih alamat pengiriman.'),
-        ),
-      );
-    }
-  },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: const Color(0xff8A49F7),
-    foregroundColor: Colors.white,
-    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-  ),
-  child: const Text('Selesaikan Pembayaran'),
-),
-
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate() &&
+                        _selectedPaymentMethod != null &&
+                        !_isAddingNewAddress &&
+                        selectedAddress != null) {
+                      await OrderService.completeOrder(context, selectedAddress!,
+                          namaController: TextEditingController(),
+                          noHpController: TextEditingController(),
+                          selectedPaymentMethod: _selectedPaymentMethod!);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Harap lengkapi formulir dan pilih alamat pengiriman.'),
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff8A49F7),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 24),
+                  ),
+                  child: const Text('Selesaikan Pembayaran'),
+                ),
               ],
             ),
           ),
@@ -190,50 +192,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
     });
   }
-  Future<void> _completeOrder(Map<String, dynamic> shippingAddress) async {
-  try {
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final checkedItems = cartProvider.checkedItems;
-    final userId = FirebaseAuth.instance.currentUser!.uid;
-    final totalAmount = cartProvider.checkedTotal; // Total harga pesanan
 
-    final orderData = {
-      'userId': userId,
-      'customerName': shippingAddress['name'],
-      'shippingAddress': shippingAddress,
-      'phoneNumber': shippingAddress['phoneNumber'],
-      'orderItems': checkedItems.map((item) => item.toMap()).toList(),
-      'totalAmount': totalAmount,
-      'orderDate': FieldValue.serverTimestamp(),
-      'orderStatus': 'pending',
-      'paymentMethod': _selectedPaymentMethod,
-    };
-
-    // Simpan data pesanan ke Firestore
-    final firestore = FirebaseFirestore.instance;
-    final orderDocRef = await firestore.collection('orders').add(orderData);
-    final orderId = orderDocRef.id;
-
-    await cartProvider.clearCheckedItems();
-
-    // Navigasi ke halaman konfirmasi pesanan (opsional)
-    if (mounted) {
-      Navigator.of(context).pushNamed('/orderConfirmation', arguments: orderId);
-    }
-
-    if (state.mounted) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Pesanan berhasil dibuat')),
-  );
-}
-  } catch (e) {
-    print('Error completing order: $e');
-    if (state.mounted) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Terjadi kesalahan saat memproses pesanan')),
-  );
-}
-  }
-}
-
+  
 }

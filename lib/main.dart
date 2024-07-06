@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/screen/order_confirmation_screen.dart';
 import 'package:myapp/service/firebase_options.dart';
 import 'package:myapp/screen/login_screen.dart';
 import 'package:myapp/screen/sign_screen.dart';
@@ -44,6 +45,7 @@ void main() async {
           '/profile': (context) => const UserProfileWidget(),
           '/admin': (context) => const AdminScreen(),
           '/checkout': (context) => const CheckoutScreen(),
+          '/orderConfirmation': (context) =>  OrderConfirmationScreen(orderId: ModalRoute.of(context)!.settings.arguments as String),
         },
       ),
     ),

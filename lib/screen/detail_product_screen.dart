@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:myapp/module/cart_provider.dart';
 import 'package:myapp/module/favorite_provider.dart';
 import 'package:myapp/module/products.dart';
@@ -145,8 +146,11 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                                     letterSpacing: -2 / 100),
                               ),
                               TextSpan(
-                                text:
-                                    '\nRp. ${productSnapshot['price'].toStringAsFixed(2)}',
+                                text: NumberFormat.currency(
+                                  locale: 'id_ID',
+                                  symbol: 'Rp',
+                                  decimalDigits: 0,
+                                ).format(productSnapshot['price']),
                                 style: GoogleFonts.josefinSans(
                                     color: const Color(0xff0B3128),
                                     fontSize: 24,
@@ -166,7 +170,8 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                       ),
                     ),
                     Padding(
-                      padding:  EdgeInsets.fromLTRB(16, screenSize.height * 0.08, 16, 8),
+                      padding: EdgeInsets.fromLTRB(
+                          16, screenSize.height * 0.08, 16, 8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -212,11 +217,14 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                 borderRadius: BorderRadius.zero,
               ),
               padding: const EdgeInsets.all(8.0));
-          Provider.of<CartProvider>(context, listen: false).addToCart(
-            Product.fromFirestore(productSnapshot),
+          final cartProvider =
+              Provider.of<CartProvider>(context, listen: false);
+          await cartProvider.addToCart(
+            Product.fromFirestore(
+                productSnapshot as DocumentSnapshot<Map<String, dynamic>>),
             quantity: _quantity,
           );
-          if (mounted) {
+          if (context.mounted) {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(

@@ -18,14 +18,20 @@ class CartProvider extends ChangeNotifier {
       .where((item) => item.isChecked)
       .toList(); // Daftar item yang dicentang
 
-  Stream<List<CartItem>> get stream => _itemStreamController.stream;
+  Stream<List<CartItem>> get stream async* {
+    await for (var snapshot in _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('cart')
+        .snapshots()) {
+      yield await Future.wait(snapshot.docs.map((doc) async {
+        // Await the get() method to obtain the DocumentSnapshot
+        final productDoc = doc as DocumentSnapshot<Map<String, dynamic>>;
 
-  final _itemStreamController = StreamController<List<CartItem>>.broadcast();
-
-  @override
-  void dispose() {
-    _itemStreamController.close();
-    super.dispose();
+        // Now use the cast DocumentSnapshot
+        return CartItem.fromDocumentSnapshot(productDoc);
+      }).toList());
+    }
   }
 
   @override
@@ -35,11 +41,12 @@ class CartProvider extends ChangeNotifier {
 
   CartProvider() {
     _auth.authStateChanges().listen((user) {
-      if (user != null) {
-        fetchCartItems(); // Ambil data keranjang saat login
-      }
+      stream.listen((items) {
+        _items = items;
+        notifyListeners();
+      });
+      // Ambil data keranjang saat login
     });
-    fetchCartItems();
   }
 
   // Mengambil data produk dari Firestore berdasarkan ID
@@ -49,33 +56,26 @@ class CartProvider extends ChangeNotifier {
 
       if (userId != null) {
         final snapshot = await FirebaseFirestore.instance
-            .collection('carts')
+            .collection('users')
             .doc(userId)
+            .collection('cart')
             .get();
 
-        if (snapshot.exists) {
-          final data = snapshot.data(); // Menggunakan ? untuk nullable
-
-          final itemsData =
-              data?['items'] as List<dynamic>?; // Menggunakan ? untuk nullable
-
-          // Menggunakan if untuk memastikan itemsData tidak null
-          _items = itemsData
-                  ?.map((itemData) => CartItem.fromMap(itemData))
-                  .toList() ??
-              [];
+        if (snapshot.docs.isNotEmpty) {
+          _items = await Future.wait(snapshot.docs
+              .map((doc) => CartItem.fromDocumentSnapshot(doc))
+              .toList());
         } else {
           _items = [];
         }
       } else {
         _items = [];
       }
+      notifyListeners();
+    } on FirebaseException catch (e) {
+      print('Error fetching cart items: $e');
     } catch (e) {
       print('Error fetching cart items: $e');
-      _itemStreamController.addError(e);
-    } finally {
-      // Selalu jalankan notifierListeners() dan _itemStreamController.add(_items); baik berhasil ataupun error
-      _itemStreamController.add(_items);
     }
   }
 
@@ -132,33 +132,34 @@ class CartProvider extends ChangeNotifier {
 
   // Update the cart in Firestore
   Future<void> _updateCartInFirestore() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId != null) {
+    final user = _auth.currentUser;
+    if (user != null) {
       try {
-        final cartDocRef = _firestore.collection('carts').doc(userId);
+        final userDocRef = _firestore.collection('users').doc(user.uid);
+        final cartSubcollectionRef = userDocRef.collection('cart');
 
-        // Check if the document exists
-        if (!(await cartDocRef.get()).exists) {
-          await cartDocRef
-              .set({'items': []}); // Create document if it doesn't exist
+        // Create or update cart items in the subcollection
+        for (final item in _items) {
+          final productRef =
+              FirebaseFirestore.instance.doc('products/${item.product.id}');
+          await cartSubcollectionRef.doc(item.product.id).set({
+            'product': productRef,
+            'quantity': item.quantity,
+            'isChecked': item.isChecked,
+          });
         }
 
-        await cartDocRef.update({
-          'items': _items.map((item) => item.toMap()).toList(),
-        });
-
-        notifyListeners(); // Beri tahu widget lain tentang perubahan
-      } on FirebaseException catch (e) {
-        if (e.code == 'permission-denied') {
-          print('Error updating cart: Permission denied.');
-          // Tampilkan pesan error yang sesuai kepada pengguna.
-        } else {
-          print('Error updating cart: $e');
-          // Handle error lainnya jika diperlukan.
+        // Remove items that are not in _items
+        final cartSnapshot = await cartSubcollectionRef.get();
+        for (final doc in cartSnapshot.docs) {
+          if (!_items.any((item) => item.product.id == doc.id)) {
+            await doc.reference.delete();
+          }
         }
-      } catch (e) {
-        print(
-            'Error updating cart: $e'); // Tangani error lain yang tidak terduga.
+
+        notifyListeners(); // Notify listeners of changes
+      } on FirebaseException {
+        // ... (error handling)
       }
     }
   }

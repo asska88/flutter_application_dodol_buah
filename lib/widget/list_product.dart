@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class ListProduct extends StatefulWidget {
   const ListProduct({
@@ -63,8 +64,7 @@ class _ListProductState extends State<ListProduct> {
                               Navigator.pushNamed(
                                 context,
                                 '/detail',
-                                arguments:
-                                    streamSnapshot.data!.docs[index],
+                                arguments: streamSnapshot.data!.docs[index],
                               );
                             },
                             child: Padding(
@@ -86,13 +86,17 @@ class _ListProductState extends State<ListProduct> {
                                     Text(documentSnapshot['name'],
                                         style: GoogleFonts.dmSans(
                                             fontWeight: FontWeight.bold)),
-                                    
                                     const SizedBox(
                                       height: 8,
                                     ),
                                     Text(
-                                        'Rp. ${documentSnapshot['price'].toStringAsFixed(2)} per kg'),
-                                    
+                                        NumberFormat.currency(
+                                          locale: 'id_ID',
+                                          symbol: 'Rp',
+                                          decimalDigits: 0,
+                                        ).format(documentSnapshot['price']),
+                                        style: GoogleFonts.dmSans(
+                                            fontWeight: FontWeight.w400)),
                                   ],
                                 ),
                               ),
