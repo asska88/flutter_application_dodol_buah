@@ -112,7 +112,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     setState(() {
                       selectedAddress = address;
                       _isAddingNewAddress = false;
-                      Navigator.of(context).pop();
                     });
                   },
                 ),
@@ -162,12 +161,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate() &&
                         _selectedPaymentMethod != null &&
-                        !_isAddingNewAddress &&
                         selectedAddress != null) {
-                      await OrderService.completeOrder(context, selectedAddress!,
+                      await OrderService.completeOrder(
+                          context, selectedAddress!,
                           namaController: TextEditingController(),
                           noHpController: TextEditingController(),
                           selectedPaymentMethod: _selectedPaymentMethod!);
+                      print(
+                          '_formKey.currentState!.validate(): ${_formKey.currentState!.validate()}');
+                      print('_selectedPaymentMethod: $_selectedPaymentMethod');
+                      print('_isAddingNewAddress: $_isAddingNewAddress');
+                      print('selectedAddress: $selectedAddress');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -175,6 +179,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               'Harap lengkapi formulir dan pilih alamat pengiriman.'),
                         ),
                       );
+                    }
+                    if (_isAddingNewAddress) {
+                      setState(() {
+                        _isAddingNewAddress = false;
+                      });
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+// Tutup formulir jika sedang menambahkan alamat baru
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -192,6 +205,4 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
     });
   }
-
-  
 }

@@ -35,19 +35,17 @@ class ShippingAddressFormState extends State<ShippingAddressForm> {
     try {
       final firestore = FirebaseFirestore.instance;
       final userId = FirebaseAuth.instance.currentUser!.uid;
-      final querySnapshot = await firestore
+      final docSnapshot = await firestore
           .collection('users')
           .doc(userId)
-          .collection('shippingAddresses')
-          .limit(1)
           .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data();
         setState(() {
-          final doc = querySnapshot.docs.first;
-          _existingAddress = doc.data() as Map<String, dynamic>?;
-          _existingAddress?['id'] = doc.id;
-          _existingAddress = querySnapshot.docs.first.data();
+          _existingAddress = data ?? {};
+         _nameController.text = _existingAddress?['name'] ?? '';
+          _noHpController.text = _existingAddress?['phoneNumber'] ?? '';
           _streetController.text = _existingAddress?['street'] ?? '';
           _cityController.text = _existingAddress?['city'] ?? '';
           _provinceController.text = _existingAddress?['province'] ?? '';
@@ -75,7 +73,7 @@ class ShippingAddressFormState extends State<ShippingAddressForm> {
             Column(
               children: [
                 Text(
-                  _existingAddress!['street'],
+                  _existingAddress!['street'] ?? '',
                   style: GoogleFonts.poppins(fontWeight: FontWeight.w400),
                 ),
                 // ... (display other address fields)
@@ -180,14 +178,12 @@ class ShippingAddressFormState extends State<ShippingAddressForm> {
                       if (_formKey.currentState!.validate()) {
                         await _submitAddress(); // Tunggu hingga proses penyimpanan selesai
 
-                        if (state.mounted) {
+                        if (mounted) {
                           ScaffoldMessenger.of(state.context).showSnackBar(
                             const SnackBar(
                                 content: Text('Alamat berhasil disimpan')),
                           );
                           widget.onAddressSelected(_existingAddress);
-                          // ignore: use_build_context_synchronously
-                          Navigator.of(context).pop();
                         }
                       }
                     },
@@ -207,37 +203,26 @@ class ShippingAddressFormState extends State<ShippingAddressForm> {
         final firestore = FirebaseFirestore.instance;
         final userId = FirebaseAuth.instance.currentUser!.uid;
         final addressData = {
+          'name': _nameController.text,
+          'phoneNumber': _noHpController.text,
           'street': _streetController.text,
           'city': _cityController.text,
           'province': _provinceController.text,
           'postalCode': _postalCodeController.text,
         };
 
-        // Determine whether to add a new address or update existing
-        if (_existingAddress == null) {
-          // Add new address to a subcollection for better organization
-          await firestore
-              .collection('users')
-              .doc(userId)
-              .collection('shippingAddresses')
-              .add(addressData);
-        } else {
-          // Update the existing address document
-          await firestore
-              .collection('users')
-              .doc(userId)
-              .collection('shippingAddresses')
-              .doc(
-                  _existingAddress!['id']) // Assuming you store the document ID
-              .update(addressData);
-        }
-        // Notify parent widget of the selected address
-        widget.onAddressSelected(addressData); // Use addressData here
+        await firestore.collection('users').doc(userId).update(addressData);
 
-        if (state.mounted) {
+        _existingAddress = addressData;
+
+        if (mounted) {
           ScaffoldMessenger.of(state.context).showSnackBar(
             const SnackBar(content: Text('Alamat berhasil disimpan')),
           );
+          widget.onAddressSelected(_existingAddress);
+
+      // Tutup formulir setelah berhasil menyimpan alamat
+      Navigator.of(context).pop();
         }
       } catch (e) {
         print('Error saving address: $e');
