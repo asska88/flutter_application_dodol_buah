@@ -1,8 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/module/cart_provider.dart';
-import 'package:myapp/module/shipping_address_form.dart';
 import 'package:myapp/service/cart_service.dart';
 import 'package:myapp/service/order_service.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +33,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       setState(() {
         checkedItems = arguments;
       });
+    }
+
+    // Tambahkan logika ini untuk inisialisasi selectedAddress
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchExistingAddress();
+    });
+  }
+
+  Future<void> _fetchExistingAddress() async {
+    try {
+      final firestore = FirebaseFirestore.instance;
+      final userId = FirebaseAuth.instance.currentUser!.uid;
+      final docSnapshot = await firestore.collection('users').doc(userId).get();
+
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data();
+        setState(() {
+          selectedAddress =
+              data; // Inisialisasi selectedAddress dengan data dari Firestore
+        });
+      }
+    } catch (e) {
+      print('Error fetching existing address: $e');
     }
   }
 
@@ -107,29 +131,43 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(height: 8),
-                ShippingAddressForm(
-                  onAddressSelected: (address) {
-                    setState(() {
-                      selectedAddress = address;
-                      _isAddingNewAddress = false;
-                    });
-                  },
-                ),
+                // ShippingAddressForm(
+                //   onAddressSelected: (address) {
+                //     setState(() {
+                //       selectedAddress = address;
+                //       _isAddingNewAddress = false;
+                //     });
+                //   },
+                // ),
                 if (!_isAddingNewAddress && selectedAddress != null)
                   Column(
                     children: [
-                      const Text('Alamat Tersimpan:'),
-                      Text(selectedAddress!['street']),
-                      Text(selectedAddress!['city']),
-                      Text(selectedAddress!['province']),
-                      Text(selectedAddress!['postalCode']),
+                      Center(
+                        child: Text(selectedAddress!['street'],
+                            textAlign: TextAlign.center),
+                      ),
+                      Center(
+                        child: Text(selectedAddress!['city'],
+                            textAlign: TextAlign.center),
+                      ),
+                      Center(
+                        child: Text(selectedAddress!['province'],
+                            textAlign: TextAlign.center),
+                      ),
+                      Center(
+                        child: Text(selectedAddress!['postalCode'],
+                            textAlign: TextAlign.center),
+                      ),
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
                             _isAddingNewAddress = true;
                           });
                         },
-                        child: const Text('Tambah Alamat Baru'),
+                        child: const Text(
+                          'Tambah Alamat Baru',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ],
                   ),
@@ -170,7 +208,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       print(
                           '_formKey.currentState!.validate(): ${_formKey.currentState!.validate()}');
                       print('_selectedPaymentMethod: $_selectedPaymentMethod');
-                      print('_isAddingNewAddress: $_isAddingNewAddress');
                       print('selectedAddress: $selectedAddress');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

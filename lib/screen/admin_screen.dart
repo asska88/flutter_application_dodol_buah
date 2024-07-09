@@ -17,7 +17,9 @@ class AdminScreen extends StatefulWidget {
   State<AdminScreen> createState() => _AdminScreenState();
 }
 
-class _AdminScreenState extends State<AdminScreen> {
+class _AdminScreenState extends State<AdminScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -25,6 +27,8 @@ class _AdminScreenState extends State<AdminScreen> {
 
   final CollectionReference _products =
       FirebaseFirestore.instance.collection('products');
+  final CollectionReference _orders =
+      FirebaseFirestore.instance.collection('orders');
 
   XFile? _imageFile;
 
@@ -193,129 +197,254 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.sizeOf(context);
     return Scaffold(
       backgroundColor: Colors.grey[300],
       appBar: AppBar(
-        leading: IconButton(onPressed: (){}, icon: const Icon(Icons.menu)),
+        leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title:  Text('DASHBOARD', style: GoogleFonts.openSans(fontWeight: FontWeight.bold, letterSpacing: 2),),
+        title: Text(
+          'DASHBOARD',
+          style: GoogleFonts.openSans(
+              fontWeight: FontWeight.bold, letterSpacing: 2),
+        ),
         centerTitle: true,
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(
+              text: 'produk',
+            ),
+            Tab(
+              text: 'pesanan',
+            )
+          ],
+        ),
       ),
       // Using StreamBuilder to display all products from Firestore in real-time
-      body: StreamBuilder(
-        stream: _products.snapshots(),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _tabProduct(screenSize),
+          _tabOrder(),
+        ],
+      ),
+
+      // Add new product
+      floatingActionButton: _tabController.index == 0
+          ? FloatingActionButton.extended(
+              onPressed: () => _createOrUpdate(),
+              label: const Text('Tambah Produk'),
+              icon: const Icon(Icons.add),
+            )
+          : null,
+    );
+  }
+
+  StreamBuilder<QuerySnapshot<Object?>> _tabOrder() {
+    return StreamBuilder(
+        stream: _orders.snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-          if (streamSnapshot.hasData) {
+          if (streamSnapshot.hasData && streamSnapshot.data!.docs.isNotEmpty) {
             return ListView.builder(
               itemCount: streamSnapshot.data!.docs.length,
               itemBuilder: (BuildContext context, int index) {
                 final DocumentSnapshot documentSnapshot =
                     streamSnapshot.data!.docs[index];
-                final docID = documentSnapshot.id;
-                final description = documentSnapshot.get('description');
-                final stock = documentSnapshot.get('stock');
+                final orderItems = documentSnapshot['orderItems'];
+                final shippingAddress = documentSnapshot['shippingAddress'];
                 return Card(
                   surfaceTintColor: Colors.grey,
                   shadowColor: Colors.purple,
                   elevation: 3,
-                  key: ValueKey(docID),
                   margin: const EdgeInsets.all(10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: ExpansionTile(
+                    title: Text(
+                      'Nomor Pesanan: ${documentSnapshot.id}',
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    subtitle: Text(
+                      'Tanggal: ${DateFormat('dd MMM yyyy HH:mm').format((documentSnapshot['orderDate'] as Timestamp).toDate())}',
+                      style: GoogleFonts.jetBrainsMono(
+                          fontWeight: FontWeight.bold),
+                    ),
                     children: [
-                      if (documentSnapshot['image'] != null)
-                        Image.network(
-                          documentSnapshot['image'],
-                          height: screenSize.height * 0.2,
-                          width: screenSize.width * 0.2,
-                          fit: BoxFit.contain,
-                        ),
-                      Expanded(
-                        // Expand to take available space
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                documentSnapshot['name'],
-                                style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              Text(
-                                "Harga: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(documentSnapshot['price'])}",
-                                style: GoogleFonts.jetBrainsMono(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              if (stock != null) Text("Stok: $stock"),
-                              // Description below the image and details
-                              if (description != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: ReadMoreText(
-                                    "Deskripsi: $description",
-                                    trimLines: 2,
-                                    colorClickableText: Colors.pink,
-                                    trimMode: TrimMode.Line,
-                                    trimCollapsedText: 'Show more',
-                                    trimExpandedText: 'Show less',
-                                    moreStyle: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                    lessStyle: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
+                      ListTile(
+                        title: const Text('Alamat Pengiriman:'),
+                        subtitle: Text(
+                            '${shippingAddress['street']}, ${shippingAddress['city']}, ${shippingAddress['province']}, ${shippingAddress['postalCode']}'),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          // Wrap buttons in a Column for vertical alignment
-                          children: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.edit,
-                                color: Colors.blueGrey,
-                              ),
-                              onPressed: () =>
-                                  _createOrUpdate(documentSnapshot),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete,
-                                  color: Colors.blueGrey),
-                              onPressed: () =>
-                                  _deleteProduct(documentSnapshot.id),
-                            ),
-                          ],
-                        ),
+                      // Menampilkan daftar item dalam pesanan
+                      ListTile(
+                        title: const Text('Item Pesanan:'),
+                        subtitle: orderItems.isNotEmpty
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: orderItems
+                                    .where((item) =>
+                                        item != null &&
+                                        item['price'] !=
+                                            null) // Filter item null
+                                    .map<Widget>((item) {
+                                  print(item);
+                                  final product = item['product'];
+                                  print(product);
+                                  return Text(
+                                      '- ${product['name']} (${item['quantity']}x ${product['price'] != null && product['price'] is num ? NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(product['price']) : 'Harga tidak valid'})');
+                                }).toList(),
+                              )
+                            : const Text("Tidak ada item pesanan"),
+                      ),
+                      // Menampilkan informasi lainnya seperti metode pembayaran, dll.
+                      ListTile(
+                        title: const Text('Metode Pembayaran:'),
+                        subtitle: Text(documentSnapshot['paymentMethod']),
+                      ),
+                      ListTile(
+                        title: const Text('Nama:'),
+                        subtitle: Text(shippingAddress['name']),
+                      ),
+                      ListTile(
+                        title: const Text('Nomor HP:'),
+                        subtitle: Text(shippingAddress['phoneNumber']),
                       ),
                     ],
                   ),
                 );
               },
             );
+          } else if (streamSnapshot.hasError) {
+            // Tampilkan pesan error
+          } else {
+            return const Center(
+              child: Text("Belum ada pesanan"),
+            );
           }
-
           return const Center(
             child: CircularProgressIndicator(),
           );
-        },
-      ),
-      // Add new product
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _createOrUpdate(),
-        label: const Text('Tambah Produk'),
-        icon: const Icon(Icons.add),
-      ),
+        });
+  }
+
+  StreamBuilder<QuerySnapshot<Object?>> _tabProduct(Size screenSize) {
+    return StreamBuilder(
+      stream: _products.snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+        if (streamSnapshot.hasData) {
+          return ListView.builder(
+            itemCount: streamSnapshot.data!.docs.length,
+            itemBuilder: (BuildContext context, int index) {
+              final DocumentSnapshot documentSnapshot =
+                  streamSnapshot.data!.docs[index];
+              final docID = documentSnapshot.id;
+              final description = documentSnapshot.get('description');
+              final stock = documentSnapshot.get('stock');
+              return Card(
+                surfaceTintColor: Colors.grey,
+                shadowColor: Colors.purple,
+                elevation: 3,
+                key: ValueKey(docID),
+                margin: const EdgeInsets.all(10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (documentSnapshot['image'] != null)
+                      Image.network(
+                        documentSnapshot['image'],
+                        height: screenSize.height * 0.2,
+                        width: screenSize.width * 0.2,
+                        fit: BoxFit.contain,
+                      ),
+                    Expanded(
+                      // Expand to take available space
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              documentSnapshot['name'],
+                              style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            Text(
+                              "Harga: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(documentSnapshot['price'])}",
+                              style: GoogleFonts.jetBrainsMono(
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            if (stock != null) Text("Stok: $stock"),
+                            // Description below the image and details
+                            if (description != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: ReadMoreText(
+                                  "Deskripsi: $description",
+                                  trimLines: 2,
+                                  colorClickableText: Colors.pink,
+                                  trimMode: TrimMode.Line,
+                                  trimCollapsedText: 'Show more',
+                                  trimExpandedText: 'Show less',
+                                  moreStyle: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                  lessStyle: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        // Wrap buttons in a Column for vertical alignment
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.edit,
+                              color: Colors.blueGrey,
+                            ),
+                            onPressed: () => _createOrUpdate(documentSnapshot),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete,
+                                color: Colors.blueGrey),
+                            onPressed: () =>
+                                _deleteProduct(documentSnapshot.id),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        }
+
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
     );
   }
 }

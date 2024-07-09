@@ -11,13 +11,11 @@ class OrderConfirmationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Konfirmasi Pesanan'),
+        title: const Text('Selesai'),
       ),
       body: FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance
-            .collection('orders')
-            .doc(orderId)
-            .get(),
+        future:
+            FirebaseFirestore.instance.collection('orders').doc(orderId).get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -32,9 +30,38 @@ class OrderConfirmationScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Nomor Pesanan: $orderId'),
                   const SizedBox(height: 16),
-                  Text('Tanggal Pemesanan: ${_formatDate(orderData['orderDate'])}'),
+                  const Text('Daftar Produk:',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: orderData['orderItems'].length,
+                    itemBuilder: (context, index) {
+                      final item = orderData['orderItems'][index];
+                      final product = item['product']; // Ambil data produk
+                      return _buildProductCard(product, item['quantity']);
+                    },
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          color: Colors.grey[100],
+                          height: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                          'Tanggal Pemesanan:'),
+                          Text(_formatDate(orderData['orderDate']))
+                    ],
+                  ),
                   const SizedBox(height: 16),
                   Text('Nama Pelanggan: ${orderData['customerName']}'),
                   const SizedBox(height: 8),
@@ -46,9 +73,12 @@ class OrderConfirmationScreen extends StatelessWidget {
                   Text(orderData['shippingAddress']['province']),
                   Text(orderData['shippingAddress']['postalCode']),
                   const SizedBox(height: 16),
+                  Text('Nomor Pesanan: $orderId'),
+                  const SizedBox(height: 16),
                   Text(
                     'Total Pembayaran: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(orderData['totalAmount'])}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   const Text(
@@ -60,6 +90,54 @@ class OrderConfirmationScreen extends StatelessWidget {
             );
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildProductCard(Map<String, dynamic> product, int quantity) {
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
+
+    return Card(
+      elevation: 10,
+      color: Colors.grey[200],
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Gambar produk (jika ada)
+            if (product['image'] != null)
+              Image.network(
+                product['image'],
+                width: 50,
+                height: 50,
+                fit: BoxFit.contain,
+              ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product['name'],
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${formatCurrency.format(product['price'])} x $quantity',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

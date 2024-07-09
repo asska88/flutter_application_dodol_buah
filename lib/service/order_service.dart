@@ -21,7 +21,12 @@ class OrderService {
         'customerName': shippingAddress['name'],
         'shippingAddress': shippingAddress,
         'phoneNumber': shippingAddress['phoneNumber'],
-        'orderItems': checkedItems.map((item) => item.toMap()).toList(),
+        'orderItems': checkedItems
+            .map((item) => {
+                  'product': item.product.toMap(), // Ubah Product ke Map
+                  'quantity': item.quantity,
+                })
+            .toList(),
         'totalAmount': totalAmount,
         'orderDate': FieldValue.serverTimestamp(),
         'orderStatus': 'pending',
