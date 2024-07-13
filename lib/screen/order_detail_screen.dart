@@ -47,7 +47,7 @@ class OrderDetailScreen extends StatelessWidget {
 
                   // Nama Pembeli
                   Text('nama pembeli', style: GoogleFonts.poppins()),
-                  Text(orderData['nama'], style: GoogleFonts.jetBrainsMono()),
+                  Text(shippingAddress['name'], style: GoogleFonts.jetBrainsMono()),
 
                   const SizedBox(height: 16),
 
@@ -75,7 +75,7 @@ class OrderDetailScreen extends StatelessWidget {
                         style: GoogleFonts.poppins(),
                       ),
                       subtitle: Text(
-                        '${orderItems[0]['quantity']}x Rp ${NumberFormat("#,##0", "id_ID").format(orderItems[0]['price'])}',
+                        '${orderItems[0]['quantity']}x Rp ${NumberFormat("#,##0", "id_ID").format(orderItems[0]['product']['price'])}',
                         style: GoogleFonts.jetBrainsMono(),
                       ),
                     ),

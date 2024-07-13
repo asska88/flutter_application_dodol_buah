@@ -8,7 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:intl/intl.dart';
-import 'package:myapp/screen/order_detail_screen.dart';
+import 'package:myapp/screen/order_items.dart';
 import 'package:readmore/readmore.dart';
 
 class AdminScreen extends StatefulWidget {
@@ -266,86 +266,11 @@ class _AdminScreenState extends State<AdminScreen>
           return ListView.builder(
             itemCount: streamSnapshot.data!.docs.length,
             itemBuilder: (BuildContext context, int index) {
+
               final DocumentSnapshot documentSnapshot =
                   streamSnapshot.data!.docs[index];
-              final orderItems = documentSnapshot['orderItems'];
-
-              return InkWell(
-                // Tambahkan InkWell untuk menangani klik
-                onTap: () {
-                  // Navigasi ke halaman detail pesanan
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => OrderDetailScreen(
-                          orderId: documentSnapshot
-                              .id), // Sesuaikan dengan nama halaman detail Anda
-                    ),
-                  );
-                },
-                child: Card(
-                  surfaceTintColor: Colors.grey,
-                  shadowColor: Colors.purple,
-                  elevation: 3,
-                  margin: const EdgeInsets.all(10),
-                  child: ListTile(
-                    // Gunakan ListTile biasa tanpa ExpansionTile
-                    leading: Image.network(
-                      orderItems['product']
-                          ['image'], // Gunakan gambar item pertama
-                      height: 50,
-                      width: 50,
-                      fit: BoxFit.contain,
-                    ),
-                    title: Row(
-                      // Gunakan Row untuk title dan total order
-                      children: [
-                        Expanded(
-                          child: Text(
-                            orderItems['product']
-                                ['name'], // Gunakan nama item pertama
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '${orderItems.length} item', // Jumlah item dalam pesanan
-                          style: GoogleFonts.jetBrainsMono(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '#${documentSnapshot.id}', // Nomor pesanan
-                          style: GoogleFonts.jetBrainsMono(),
-                        ),
-                        Text(
-                          DateFormat('dd MMM yyyy HH:mm').format(
-                            (documentSnapshot['orderDate'] as Timestamp)
-                                .toDate(),
-                          ), // Tanggal pesanan
-                          style: GoogleFonts.jetBrainsMono(),
-                        ),
-                      ],
-                    ),
-                    trailing: Checkbox(
-                      value: documentSnapshot['isDone'] ??
-                          false, // Tandai pesanan selesai
-                      onChanged: (value) {
-                        _orders
-                            .doc(documentSnapshot.id)
-                            .update({'isDone': value});
-                      },
-                    ),
-                  ),
-                ),
-              );
+              print("Data pesanan ke-$index: ${documentSnapshot.data()}");
+              return OrderItem(documentSnapshot: documentSnapshot);
             },
           );
         } else if (streamSnapshot.hasError) {
