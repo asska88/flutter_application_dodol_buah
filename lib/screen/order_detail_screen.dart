@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:myapp/module/cart_provider.dart';
+import 'package:provider/provider.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   final String orderId;
@@ -10,6 +12,7 @@ class OrderDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    CartProvider cartProvider = Provider.of<CartProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order detail'),
@@ -34,20 +37,23 @@ class OrderDetailScreen extends StatelessWidget {
             final orderItems = orderData['orderItems'];
             final shippingAddress = orderData['shippingAddress'];
 
-            return SingleChildScrollView( // Agar bisa discroll jika konten panjang
+            return SingleChildScrollView(
+              // Agar bisa discroll jika konten panjang
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Nomor Transaksi
                   Text('no. transaksi', style: GoogleFonts.poppins()),
-                  Text('#${orderData['id']}', style: GoogleFonts.jetBrainsMono()),
+                  Text('#${orderData['id']}',
+                      style: GoogleFonts.jetBrainsMono()),
 
                   const SizedBox(height: 16),
 
                   // Nama Pembeli
                   Text('nama pembeli', style: GoogleFonts.poppins()),
-                  Text(shippingAddress['name'], style: GoogleFonts.jetBrainsMono()),
+                  Text(shippingAddress['name'],
+                      style: GoogleFonts.jetBrainsMono()),
 
                   const SizedBox(height: 16),
 
@@ -97,25 +103,22 @@ class OrderDetailScreen extends StatelessWidget {
                   Text('total harga (${orderItems.length})',
                       style: GoogleFonts.poppins()),
                   Text(
-                    'Rp ${NumberFormat("#,##0", "id_ID").format(orderData['total'])}',
-                    style: GoogleFonts.jetBrainsMono(fontWeight: FontWeight.bold),
+                    NumberFormat.currency(
+                      locale: 'id_ID',
+                      symbol: 'Rp',
+                      decimalDigits: 0,
+                    ).format(cartProvider.checkedTotal),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.end,
                   ),
-
-                  // Jika ada ongkos kirim, tampilkan
-                  if (orderData['shippingCost'] != null) ...[
-                    const SizedBox(height: 8),
-                    Text('total ongkos kirim (1kg)', style: GoogleFonts.poppins()),
-                    Text(
-                      'Rp ${NumberFormat("#,##0", "id_ID").format(orderData['shippingCost'])}',
-                      style: GoogleFonts.jetBrainsMono(),
-                    ),
-                  ],
 
                   const SizedBox(height: 8),
                   Text('Total Penjualan', style: GoogleFonts.poppins()),
                   Text(
-                    'Rp ${NumberFormat("#,##0", "id_ID").format(orderData['total'] + (orderData['shippingCost'] ?? 0))}',
-                    style: GoogleFonts.jetBrainsMono(fontWeight: FontWeight.bold),
+                    'Rp ${NumberFormat("#,##0", "id_ID").format(orderData['total'] ?? 0)}',
+                    style:
+                        GoogleFonts.jetBrainsMono(fontWeight: FontWeight.bold),
                   ),
 
                   const SizedBox(height: 32),
