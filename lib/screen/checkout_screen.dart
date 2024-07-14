@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/module/cart_provider.dart';
+import 'package:myapp/module/shipping_address_form.dart';
 import 'package:myapp/service/cart_service.dart';
 import 'package:myapp/service/order_service.dart';
 import 'package:provider/provider.dart';
@@ -131,47 +132,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(height: 8),
-                // ShippingAddressForm(
-                //   onAddressSelected: (address) {
-                //     setState(() {
-                //       selectedAddress = address;
-                //       _isAddingNewAddress = false;
-                //     });
-                //   },
-                // ),
-                if (!_isAddingNewAddress && selectedAddress != null)
-                  Column(
-                    children: [
-                      Center(
-                        child: Text(selectedAddress!['street'],
-                            textAlign: TextAlign.center),
-                      ),
-                      Center(
-                        child: Text(selectedAddress!['city'],
-                            textAlign: TextAlign.center),
-                      ),
-                      Center(
-                        child: Text(selectedAddress!['province'],
-                            textAlign: TextAlign.center),
-                      ),
-                      Center(
-                        child: Text(selectedAddress!['postalCode'],
-                            textAlign: TextAlign.center),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _isAddingNewAddress = true;
-                          });
-                        },
-                        child: const Text(
-                          'Tambah Alamat Baru',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-
+                ShippingAddressForm(
+                  onAddressSelected: (address) {
+                    setState(() {
+                      selectedAddress = address;
+                      _isAddingNewAddress = false;
+                    });
+                  },
+                ),
+                
                 const SizedBox(height: 32),
 
                 // Pilihan Metode Pembayaran
@@ -200,15 +169,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     if (_formKey.currentState!.validate() &&
                         _selectedPaymentMethod != null &&
                         selectedAddress != null) {
-                      await OrderService.completeOrder(
-                          context, selectedAddress!,
-                          namaController: TextEditingController(),
-                          noHpController: TextEditingController(),
-                          selectedPaymentMethod: _selectedPaymentMethod!);
-                      print(
-                          '_formKey.currentState!.validate(): ${_formKey.currentState!.validate()}');
-                      print('_selectedPaymentMethod: $_selectedPaymentMethod');
-                      print('selectedAddress: $selectedAddress');
+                      try {
+                        await OrderService.completeOrder(
+                            context, selectedAddress!,
+                            namaController: TextEditingController(),
+                            noHpController: TextEditingController(),
+                            selectedPaymentMethod: _selectedPaymentMethod!);
+                      } catch (e) {
+                        print('Error completing order: $e');
+                      }
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -221,10 +190,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       setState(() {
                         _isAddingNewAddress = false;
                       });
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                      }
-// Tutup formulir jika sedang menambahkan alamat baru
                     }
                   },
                   style: ElevatedButton.styleFrom(

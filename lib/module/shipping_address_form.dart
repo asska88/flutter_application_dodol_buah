@@ -73,10 +73,29 @@ class ShippingAddressFormState extends State<ShippingAddressForm> {
             Column(
               children: [
                 Text(
+                  _existingAddress!['name'] ?? '',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w400),
+                ),
+                Text(
+                  _existingAddress!['phoneNumber'] ?? '',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w400),
+                ),
+                Text(
                   _existingAddress!['street'] ?? '',
                   style: GoogleFonts.poppins(fontWeight: FontWeight.w400),
                 ),
-                // ... (display other address fields)
+                Text(
+                  _existingAddress!['city'] ?? '',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w400),
+                ),
+                Text(
+                  _existingAddress!['province'] ?? '',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w400),
+                ),
+                Text(
+                  _existingAddress!['postalCode'] ?? '',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w400),
+                ),
                 TextButton(
                   onPressed: () {
                     setState(() {
@@ -222,7 +241,7 @@ class ShippingAddressFormState extends State<ShippingAddressForm> {
           widget.onAddressSelected(_existingAddress);
 
       // Tutup formulir setelah berhasil menyimpan alamat
-      Navigator.of(context).pop();
+      // Navigator.of(context).pop();
         }
       } catch (e) {
         print('Error saving address: $e');

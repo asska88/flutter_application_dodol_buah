@@ -57,15 +57,26 @@ class OrderConfirmationScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                          'Tanggal Pemesanan:'),
-                          Text(_formatDate(orderData['orderDate']))
+                      const Text('Tanggal Pemesanan:'),
+                      Text(_formatDate(orderData['orderDate']))
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Text('Nama Pelanggan: ${orderData['customerName']}'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Nama Pelanggan: '),
+                      Text(orderData['customerName']),
+                    ],
+                  ),
                   const SizedBox(height: 8),
-                  Text('Nomor Telepon: ${orderData['phoneNumber']}'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Nomor Telepon:'),
+                      Text(orderData['phoneNumber']),
+                    ],
+                  ),
                   const SizedBox(height: 8),
                   const Text('Alamat Pengiriman:'),
                   Text(orderData['shippingAddress']['street']),
@@ -73,12 +84,32 @@ class OrderConfirmationScreen extends StatelessWidget {
                   Text(orderData['shippingAddress']['province']),
                   Text(orderData['shippingAddress']['postalCode']),
                   const SizedBox(height: 16),
-                  Text('Nomor Pesanan: $orderId'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Nomor Pesanan:'),
+                      Text(orderId),
+                    ],
+                  ),
                   const SizedBox(height: 16),
-                  Text(
-                    'Total Pembayaran: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(orderData['totalAmount'])}',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Total Pembayaran: ',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        NumberFormat.currency(
+                                locale: 'id_ID',
+                                symbol: 'Rp ',
+                                decimalDigits: 0)
+                            .format(orderData['totalAmount']),
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   const Text(
