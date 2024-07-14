@@ -61,149 +61,164 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
+        child: Column(
+          children: [
+            Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Center(
-                      child: Text(
-                        productSnapshot['name'],
-                        style: GoogleFonts.inter(
-                            color: const Color(0xff3D5920),
-                            fontSize: screenSize.width * 0.07,
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: -3 / 100),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Center(
+                          child: Text(
+                            productSnapshot['name'],
+                            style: GoogleFonts.inter(
+                                color: const Color(0xff3D5920),
+                                fontSize: screenSize.width * 0.07,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: -3 / 100),
+                          ),
+                        ),
                       ),
+                    ],
+                  ),
+                  SizedBox(
+                      height: screenSize.width * 0.6,
+                      width: screenSize.width * 0.6,
+                      child: Image.network(
+                        productSnapshot['image'],
+                        fit: BoxFit.contain,
+                      )),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Container(
+                    width: screenSize.width,
+                    height: screenSize.height,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(50),
+                        topRight: Radius.circular(50),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 20,
+                                child: Text(
+                                  'Description',
+                                  style: GoogleFonts.inter(
+                                      color: const Color(0xff0B3128),
+                                      fontSize: screenSize.width * 0.05,
+                                      fontWeight: FontWeight.w400,
+                                      letterSpacing: -3 / 100),
+                                ),
+                              ),
+                              Text(
+                                productSnapshot['description'],
+                                style: GoogleFonts.inter(
+                                    color: Colors.black87,
+                                    fontSize: screenSize.width * 0.03,
+                                    fontWeight: FontWeight.w400,
+                                    letterSpacing: -3 / 100),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(left: 16.0, right: 16.0),
+                          child: Expanded(
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    RichText(
+                                      text: TextSpan(children: [
+                                        TextSpan(
+                                          text: 'Price ',
+                                          style: GoogleFonts.josefinSans(
+                                              color: Colors.black,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w300,
+                                              letterSpacing: -2 / 100),
+                                        ),
+                                        TextSpan(
+                                          text: NumberFormat.currency(
+                                            locale: 'id_ID',
+                                            symbol: 'Rp',
+                                            decimalDigits: 0,
+                                          ).format(productSnapshot['price']),
+                                          style: GoogleFonts.josefinSans(
+                                              color: const Color(0xff0B3128),
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: -2 / 100),
+                                        ),
+                                      ]),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: screenSize.width * 0.2),
+                                      child: Row(
+                                        children: _iconStar,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(
+                                      16, screenSize.height * 0.08, 16, 8),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            if (_quantity > 1) _quantity--;
+                                          });
+                                        },
+                                        icon: const Icon(Icons.remove),
+                                      ),
+                                      Text(_quantity.toString()),
+                                      IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _quantity++;
+                                          });
+                                        },
+                                        icon: const Icon(Icons.add),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                 _buttonCart(context, screenSize),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              SizedBox(
-                  height: screenSize.height * 0.4,
-                  width: screenSize.height * 0.4,
-                  child: Image.network(
-                    productSnapshot['image'],
-                    fit: BoxFit.contain,
-                  )),
-              const SizedBox(
-                height: 5,
-              ),
-              Container(
-                width: screenSize.width,
-                height: screenSize.height,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50),
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Description',
-                            style: GoogleFonts.inter(
-                                color: const Color(0xff0B3128),
-                                fontSize: screenSize.width * 0.05,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: -3 / 100),
-                          ),
-                          Text(
-                            productSnapshot['description'],
-                            style: GoogleFonts.inter(
-                                color: Colors.black87,
-                                fontSize: screenSize.width * 0.03,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: -3 / 100),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-                      child: Row(
-                        children: [
-                          RichText(
-                            text: TextSpan(children: [
-                              TextSpan(
-                                text: 'Price ',
-                                style: GoogleFonts.josefinSans(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w300,
-                                    letterSpacing: -2 / 100),
-                              ),
-                              TextSpan(
-                                text: NumberFormat.currency(
-                                  locale: 'id_ID',
-                                  symbol: 'Rp',
-                                  decimalDigits: 0,
-                                ).format(productSnapshot['price']),
-                                style: GoogleFonts.josefinSans(
-                                    color: const Color(0xff0B3128),
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: -2 / 100),
-                              ),
-                            ]),
-                          ),
-                          Padding(
-                            padding:
-                                EdgeInsets.only(left: screenSize.width * 0.2),
-                            child: Row(
-                              children: _iconStar,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                          16, screenSize.height * 0.08, 16, 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                if (_quantity > 1) _quantity--;
-                              });
-                            },
-                            icon: const Icon(Icons.remove),
-                          ),
-                          Text(_quantity.toString()),
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _quantity++;
-                              });
-                            },
-                            icon: const Icon(Icons.add),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      floatingActionButton: _buttonCart(context, screenSize),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+       
     );
   }
 
