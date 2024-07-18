@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/service/auth_service.dart';
 
 class UserProfileWidget extends StatefulWidget {
   const UserProfileWidget({super.key});
@@ -11,13 +10,12 @@ class UserProfileWidget extends StatefulWidget {
 }
 
 class _UserProfileWidgetState extends State<UserProfileWidget> {
-final AuthService _authService = AuthService();
   User? _user;
 @override
   void initState() {
     super.initState();
     _user = FirebaseAuth.instance.currentUser;
-    _authService.fetchUserData();
+    fetchUserData();
 
   }
 
@@ -33,11 +31,6 @@ final AuthService _authService = AuthService();
     }
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    fetchUserData();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,10 +93,9 @@ final AuthService _authService = AuthService();
 
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
-    if (mounted){setState(() {
-      _user = null;
-    });
+    
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacementNamed(context, '/');
     }
-  }
+  
   }

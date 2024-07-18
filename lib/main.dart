@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/module/order_notifer.dart';
 import 'package:myapp/screen/order_confirmation_screen.dart';
 import 'package:myapp/service/firebase_options.dart';
 import 'package:myapp/screen/login_screen.dart';
@@ -25,7 +26,8 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => CartProvider()),
-        ChangeNotifierProvider(create: (context) => FavoriteProvider())
+        ChangeNotifierProvider(create: (context) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (context) => OrderNotifier())
       ],
       child: MaterialApp(
         theme: ThemeData(

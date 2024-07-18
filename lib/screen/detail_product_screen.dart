@@ -115,7 +115,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(
-                                height: 20,
+                                height: 30,
                                 child: Text(
                                   'Description',
                                   style: GoogleFonts.inter(
@@ -125,6 +125,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                                       letterSpacing: -3 / 100),
                                 ),
                               ),
+                              
                               Text(
                                 productSnapshot['description'],
                                 style: GoogleFonts.inter(
@@ -169,7 +170,8 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                                       ]),
                                     ),
                                     Padding(
-                                      padding: EdgeInsets.only(left: screenSize.width * 0.2),
+                                      padding: EdgeInsets.only(
+                                          left: screenSize.width * 0.2),
                                       child: Row(
                                         children: _iconStar,
                                       ),
@@ -203,7 +205,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                                     ],
                                   ),
                                 ),
-                                 _buttonCart(context, screenSize),
+                                _buttonCart(context, screenSize),
                               ],
                             ),
                           ),
@@ -217,8 +219,6 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
           ],
         ),
       ),
-
-       
     );
   }
 

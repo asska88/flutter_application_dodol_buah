@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:myapp/module/order_notifer.dart';
+import 'package:provider/provider.dart';
 
 class OrderConfirmationScreen extends StatelessWidget {
   final String orderId;
@@ -9,6 +11,8 @@ class OrderConfirmationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final orderNotifier = Provider.of<OrderNotifier>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Selesai'),
@@ -112,10 +116,28 @@ class OrderConfirmationScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Terima kasih telah berbelanja di toko kami!',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                  if (orderNotifier.isOrderSent)
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        color: Colors.green,
+                        child: Text(
+                          orderNotifier.isOrderNotification!,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    )
+                  else
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        color: Colors.orange,
+                        child: const Text(
+                          'Pesanan diproses',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             );

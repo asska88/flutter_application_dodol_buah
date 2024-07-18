@@ -19,7 +19,8 @@ class CartProvider extends ChangeNotifier {
       .toList(); // Daftar item yang dicentang
 
   Stream<List<CartItem>> get stream async* {
-    await for (var snapshot in _firestore
+    if (_auth.currentUser != null) {
+      await for (var snapshot in _firestore
         .collection('users')
         .doc(_auth.currentUser!.uid)
         .collection('cart')
@@ -32,6 +33,10 @@ class CartProvider extends ChangeNotifier {
         return CartItem.fromDocumentSnapshot(productDoc);
       }).toList());
     }
+    }else{
+      yield[];
+    }
+    
   }
 
   @override

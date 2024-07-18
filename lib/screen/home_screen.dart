@@ -3,7 +3,7 @@ import 'package:myapp/service/auth_service.dart';
 import 'package:myapp/screen/cart_screen.dart';
 import 'package:myapp/widget/favorite_screen.dart';
 import 'package:myapp/widget/list_product.dart';
-import 'package:myapp/widget/search_product.dart';
+import 'package:myapp/widget/order_product.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _pages = [
       const ListProduct(),
-      const SearchProduct(),
+      const OrderProduct(),
       const FavoriteScreen(),
       const CartScreen()
     ];

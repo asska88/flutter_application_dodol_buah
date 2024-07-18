@@ -215,7 +215,11 @@ class _AdminScreenState extends State<AdminScreen>
     return Scaffold(
       backgroundColor: Colors.grey[300],
       appBar: AppBar(
-        leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/profile');
+            },
+            icon: const Icon(Icons.person)),
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -266,11 +270,10 @@ class _AdminScreenState extends State<AdminScreen>
           return ListView.builder(
             itemCount: streamSnapshot.data!.docs.length,
             itemBuilder: (BuildContext context, int index) {
-
               final DocumentSnapshot documentSnapshot =
                   streamSnapshot.data!.docs[index];
               print("Data pesanan ke-$index: ${documentSnapshot.data()}");
-              return OrderItem(documentSnapshot: documentSnapshot);
+              return OrderItem(documentSnapshot: documentSnapshot, showCheckbox: true,);
             },
           );
         } else if (streamSnapshot.hasError) {
