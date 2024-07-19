@@ -62,9 +62,14 @@ class OrderDetailScreen extends StatelessWidget {
                 final item = orderItems[index];
                 final product = item['product'];
                 return ListTile(
-                  title: Text(product['name']),
-                  subtitle: Text(
-                      'x${item['quantity']} - Rp${NumberFormat("#,##0", "id_ID").format(product['price'])}'),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('${product['name']} x ${item['quantity']}'),
+                      Text(
+                          'Rp${NumberFormat("#,##0", "id_ID").format(product['price'])}'),
+                    ],
+                  ),
                 );
               },
             ),
@@ -76,8 +81,9 @@ class OrderDetailScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                    'Rp${NumberFormat("#,##0", "id_ID").format(orderData['totalAmount'])}', style:const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold))
+                    'Rp${NumberFormat("#,##0", "id_ID").format(orderData['totalAmount'])}',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold))
               ],
             ),
             const Row(
