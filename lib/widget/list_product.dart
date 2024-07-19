@@ -79,8 +79,8 @@ class _ListProductState extends State<ListProduct> {
                                   children: [
                                     Image.network(
                                       documentSnapshot['image'],
-                                      height: 120,
-                                      width: 200,
+                                      height: screenSize.height * 0.15,
+                                      width: screenSize.width * 0.6,
                                     ),
                                     const SizedBox(height: 8),
                                     Text(documentSnapshot['name'],
