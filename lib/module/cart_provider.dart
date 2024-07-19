@@ -19,10 +19,10 @@ class CartProvider extends ChangeNotifier {
       .toList(); // Daftar item yang dicentang
 
   Stream<List<CartItem>> get stream async* {
-    if (_auth.currentUser != null) {
+
       await for (var snapshot in _firestore
         .collection('users')
-        .doc(_auth.currentUser!.uid)
+        .doc(_auth.currentUser?.uid)
         .collection('cart')
         .snapshots()) {
       yield await Future.wait(snapshot.docs.map((doc) async {
@@ -33,10 +33,6 @@ class CartProvider extends ChangeNotifier {
         return CartItem.fromDocumentSnapshot(productDoc);
       }).toList());
     }
-    }else{
-      yield[];
-    }
-    
   }
 
   @override
@@ -50,7 +46,7 @@ class CartProvider extends ChangeNotifier {
         _items = items;
         notifyListeners();
       });
-      // Ambil data keranjang saat login
+      fetchCartItems();
     });
   }
 

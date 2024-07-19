@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:myapp/module/order_notifer.dart';
+import 'package:provider/provider.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   final Map<String, dynamic> orderData;
@@ -8,12 +10,16 @@ class OrderDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
+    final orderNotifier = Provider.of<OrderNotifier>(context);
+    final orderStatus = orderData['orderStatus'];
     final orderItems = orderData['orderItems'] as List<dynamic>;
 
     Size screenSize = MediaQuery.sizeOf(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detail Pesanan'),
+        title: const Text('Order Detail'),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -62,11 +68,44 @@ class OrderDetailScreen extends StatelessWidget {
                 );
               },
             ),
-
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Total Pembayaran: ',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                    'Rp${NumberFormat("#,##0", "id_ID").format(orderData['totalAmount'])}', style:const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold))
+              ],
+            ),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Metode Pembayaran',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Text('COD',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            if (orderStatus == 'Selesai') ...[
+              const SizedBox(
+                  height: 16), // Jarak antara daftar produk dan pesan
+              const Center(
+                child: Text(
+                  'Pesanan Selesai',
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
-
-            Text(
-                'Total Pembayaran: Rp${NumberFormat("#,##0", "id_ID").format(orderData['totalAmount'])}'),
           ],
         ),
       ),

@@ -1,16 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 class OrderNotifier extends ChangeNotifier {
-  bool _isOrderSent = false;
-  String? _isOrderNotification;
+  String? _orderStatus;
+  String? get orderStatus => _orderStatus;
 
-  bool get isOrderSent => _isOrderSent;
-  String? get isOrderNotification => _isOrderNotification;
+  Future<void> orderSend(String orderId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('orders')
+          .doc(orderId)
+          .update({'orderStatus': 'Selesai'})
+          .then((value) => print("orderStatus Updated"))
+          .catchError((error) => print("Failed to update orderStatus: $error"));
+      
 
-  void sendOrder() {
-    _isOrderSent = true;
-    _isOrderNotification = 'Pesanan Telah Dikirim';
-    notifyListeners(); // Inform listeners of the state change
+      _orderStatus = 'Selesai';
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error updating order status: $e');
+    }
   }
-
 }

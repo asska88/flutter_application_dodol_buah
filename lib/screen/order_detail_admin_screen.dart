@@ -16,9 +16,10 @@ class OrderDetailAdminScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Provider.of<CartProvider>(context);
     final orderNotifier = Provider.of<OrderNotifier>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Order detail'),
+        title: const Text('Order detail admin'),
         actions: [
           TextButton(
             onPressed: () {},
@@ -77,11 +78,17 @@ class OrderDetailAdminScreen extends StatelessWidget {
                         const SizedBox(height: 16),
 
                         // Tanggal Beli
-                        Text('tanggal beli', style: GoogleFonts.poppins()),
-                        Text(
-                          DateFormat('dd/MM/yyyy').format(
-                              (orderData['orderDate'] as Timestamp).toDate()),
-                          style: GoogleFonts.jetBrainsMono(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('tanggal beli', style: GoogleFonts.poppins()),
+                            Text(
+                              DateFormat('dd/MM/yyyy').format(
+                                  (orderData['orderDate'] as Timestamp)
+                                      .toDate()),
+                              style: GoogleFonts.jetBrainsMono(),
+                            ),
+                          ],
                         ),
 
                         const SizedBox(height: 16),
@@ -119,26 +126,55 @@ class OrderDetailAdminScreen extends StatelessWidget {
                         const SizedBox(height: 32),
 
                         // Total Harga, Ongkir, dan Penjualan
-                        Text('total harga ', style: GoogleFonts.poppins()),
-                        Text(
-                          NumberFormat.currency(
-                            locale: 'id_ID',
-                            symbol: 'Rp',
-                            decimalDigits: 0,
-                          ).format(totalHarga),
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.end,
-                        ),
-                        const SizedBox(height: 32),
+
                         // Tombol Kirim Pesanan
                       ],
                     ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('total harga ',
+                              style: GoogleFonts.poppins(
+                                  fontSize: 20, fontWeight: FontWeight.w400)),
+                          Text(
+                            NumberFormat.currency(
+                              locale: 'id_ID',
+                              symbol: 'Rp',
+                              decimalDigits: 0,
+                            ).format(totalHarga),
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.end,
+                          ),
+                        ],
+                      ),
+                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Metode Pembayaran',
+                            style: GoogleFonts.poppins(
+                                  fontSize: 20, fontWeight: FontWeight.w400),
+                          ),
+                          const Text('COD',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: () {
-                    orderNotifier.sendOrder(); // Trigger the notification
+                    orderNotifier
+                        .orderSend(orderId); // Trigger the notification
                     Navigator.push(
                       context,
                       MaterialPageRoute(

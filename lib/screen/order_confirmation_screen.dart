@@ -11,7 +11,8 @@ class OrderConfirmationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final orderNotifier = Provider.of<OrderNotifier>(context, listen: false);
+    final orderNotifier = Provider.of<OrderNotifier>(context); 
+    String orderStatus = orderNotifier.orderStatus ?? 'Diproses';
 
     return Scaffold(
       appBar: AppBar(
@@ -113,17 +114,27 @@ class OrderConfirmationScreen extends StatelessWidget {
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
+                      
                     ],
                   ),
+                  const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Metode Pembayaran', style:TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold) ,),
+                                Text('COD',style:  TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                   const SizedBox(height: 16),
-                  if (orderNotifier.isOrderSent)
+                  if (orderStatus == 'Selesai')
                     Center(
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         color: Colors.green,
-                        child: Text(
-                          orderNotifier.isOrderNotification!,
-                          style: const TextStyle(color: Colors.white),
+                        child: const Text(
+                          'Pesanan Selesai',
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
                     )

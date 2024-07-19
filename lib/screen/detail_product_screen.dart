@@ -140,74 +140,72 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                         Padding(
                           padding:
                               const EdgeInsets.only(left: 16.0, right: 16.0),
-                          child: Expanded(
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    RichText(
-                                      text: TextSpan(children: [
-                                        TextSpan(
-                                          text: 'Price ',
-                                          style: GoogleFonts.josefinSans(
-                                              color: Colors.black,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w300,
-                                              letterSpacing: -2 / 100),
-                                        ),
-                                        TextSpan(
-                                          text: NumberFormat.currency(
-                                            locale: 'id_ID',
-                                            symbol: 'Rp',
-                                            decimalDigits: 0,
-                                          ).format(productSnapshot['price']),
-                                          style: GoogleFonts.josefinSans(
-                                              color: const Color(0xff0B3128),
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                              letterSpacing: -2 / 100),
-                                        ),
-                                      ]),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: screenSize.width * 0.2),
-                                      child: Row(
-                                        children: _iconStar,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  RichText(
+                                    text: TextSpan(children: [
+                                      TextSpan(
+                                        text: 'Price ',
+                                        style: GoogleFonts.josefinSans(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w300,
+                                            letterSpacing: -2 / 100),
                                       ),
-                                    )
+                                      TextSpan(
+                                        text: NumberFormat.currency(
+                                          locale: 'id_ID',
+                                          symbol: 'Rp',
+                                          decimalDigits: 0,
+                                        ).format(productSnapshot['price']),
+                                        style: GoogleFonts.josefinSans(
+                                            color: const Color(0xff0B3128),
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: -2 / 100),
+                                      ),
+                                    ]),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        left: screenSize.width * 0.2),
+                                    child: Row(
+                                      children: _iconStar,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                    16, screenSize.height * 0.08, 16, 8),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          if (_quantity > 1) _quantity--;
+                                        });
+                                      },
+                                      icon: const Icon(Icons.remove),
+                                    ),
+                                    Text(_quantity.toString()),
+                                    IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _quantity++;
+                                        });
+                                      },
+                                      icon: const Icon(Icons.add),
+                                    ),
                                   ],
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.fromLTRB(
-                                      16, screenSize.height * 0.08, 16, 8),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            if (_quantity > 1) _quantity--;
-                                          });
-                                        },
-                                        icon: const Icon(Icons.remove),
-                                      ),
-                                      Text(_quantity.toString()),
-                                      IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _quantity++;
-                                          });
-                                        },
-                                        icon: const Icon(Icons.add),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                _buttonCart(context, screenSize),
-                              ],
-                            ),
+                              ),
+                              _buttonCart(context, screenSize),
+                            ],
                           ),
                         ),
                       ],

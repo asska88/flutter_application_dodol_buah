@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Icon(
                     [
                       Icons.home,
-                      Icons.search,
+                      Icons.shopping_bag,
                       Icons.favorite,
                       Icons.shopping_cart,
                     ][i],
@@ -94,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: _selectedIndex == i ? Colors.blueGrey : Colors.black,
                   ),
                 ),
-                label: ['Home', 'Search', 'favorite', 'Cart'][i],
+                label: ['Home', 'order', 'favorite', 'Cart'][i],
               ),
           ],
         ),
