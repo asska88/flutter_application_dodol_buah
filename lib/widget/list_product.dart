@@ -77,7 +77,11 @@ class _ListProductState extends State<ListProduct> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    
+                                    Image.network(
+                                      documentSnapshot['image'],
+                                      height: screenSize.height * 0.15,
+                                      width: screenSize.width * 0.6,
+                                    ),
                                     const SizedBox(height: 8),
                                     Text(documentSnapshot['name'],
                                         style: GoogleFonts.dmSans(
